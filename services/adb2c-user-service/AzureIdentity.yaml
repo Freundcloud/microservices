@@ -1,8 +1,0 @@
-apiVersion: "aadpodidentity.k8s.io/v1"
-kind: AzureIdentity
-metadata:
-  name: $AD_MI_NAME
-spec:
-  type: 0
-  resourceID: $AD_IDENTITY_RESOURCE_ID
-  clientID: $AD_IDENTITY_CLIENT_ID

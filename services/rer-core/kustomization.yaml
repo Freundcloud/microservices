@@ -1,7 +1,0 @@
-namespace: ofg-$ENV-$FACING-rer-core
-resources:
-  - namespace.yaml
-  - azureidentity.yaml
-  - azureidenitybinding.yaml
-  - deployment.yaml
-  - service.yaml

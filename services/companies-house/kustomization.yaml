@@ -1,7 +1,0 @@
-namespace: ofg-$ENV-$FACING-companies-house
-resources:
-  - namespace.yaml
-  - deployment.yaml
-  - AzureIdentity.yaml
-  - AzureIdentityBinding.yaml
-  - service.yaml

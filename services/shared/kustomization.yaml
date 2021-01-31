@@ -1,4 +1,0 @@
-namespace: ofg-$ENV-$FACING-shared
-resources:
-  - namespace.yaml
-  - sqlserver.yaml

@@ -1,7 +1,0 @@
-namespace: ofg-$ENV-$FACING-document-management
-resources:
-  - namespace.yaml
-  - service.yaml
-  - azureidentity.yaml
-  - azureidentitybinding.yaml
-  - deployment.yaml

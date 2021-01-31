@@ -1,6 +1,0 @@
-namespace: ofg-$ENV-$FACING-notification
-resources:
-  - namespace.yaml
-  - AzureIdentity.yaml
-  - AzureIdentityBinding.yaml
-  - test.yaml

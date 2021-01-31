@@ -1,5 +1,0 @@
-namespace: nginx
-resources:
-  - namespace.yaml
-  - service.yaml
-  - deployment.yaml

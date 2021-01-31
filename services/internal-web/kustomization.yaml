@@ -1,8 +1,0 @@
-namespace: ofg-$ENV-$FACING-internal-web-app
-resources:
-  - namespace.yaml
-  - deployment.yaml
-  - ingress.yaml
-  - service.yaml
-  - azure-identity.yaml
-  - azureidentitybinding.yaml

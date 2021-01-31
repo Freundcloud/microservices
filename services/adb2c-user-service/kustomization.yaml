@@ -1,7 +1,0 @@
-namespace: ofg-$ENV-$FACING-adb2c
-resources:
-  - namespace.yaml
-  - service.yaml
-  - AzureIdentity.yaml
-  - AzureIdentityBinding.yaml
-  - deployment.yaml

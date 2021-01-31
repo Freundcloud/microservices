@@ -1,5 +1,0 @@
-namespace: emojivoto
-resources:
-  - namespace.yaml
-  - emojivoto.yaml
-  - ingress.yaml

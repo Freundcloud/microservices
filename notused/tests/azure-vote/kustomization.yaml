@@ -1,5 +1,0 @@
-namespace: azure-vote
-resources:
-  - namespace.yaml
-  - azure-vote.yaml
-  - ingress.yaml
