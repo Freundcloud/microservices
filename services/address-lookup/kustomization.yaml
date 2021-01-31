@@ -1,0 +1,7 @@
+namespace: ofg-$ENV-$FACING-address-lookup
+resources:
+  - namespace.yaml
+  - azureidentity.yaml
+  - azureidentitybinding.yaml
+  - service.yaml
+  - deployment.yaml

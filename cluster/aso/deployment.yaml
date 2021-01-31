@@ -1,0 +1,291 @@
+---
+# Source: open-service-broker-azure/charts/redis/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: osba-redis
+  labels:
+    app: osba-redis
+    chart: "redis-0.10.0"
+    release: "osba"
+    heritage: "Helm"
+type: Opaque
+data:
+  redis-password: "cGFzc3dvcmQ="
+---
+# Source: open-service-broker-azure/templates/auth-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: osba-open-service-broker-azure-auth
+  labels:
+    app: osba-open-service-broker-azure
+    chart: "open-service-broker-azure-1.8.4"
+    release: "osba"
+    heritage: "Helm"
+type: Opaque
+data:
+  username: dXNlcm5hbWU=
+  password: cGFzc3dvcmQ=
+---
+# Source: open-service-broker-azure/templates/broker.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: osba-open-service-broker-azure-cert
+  labels:
+    app: osba-open-service-broker-azure
+    chart: "open-service-broker-azure-1.8.4"
+    release: "osba"
+    heritage: "Helm"
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUR6VENDQXJXZ0F3SUJBZ0lSQVBoejQvZFFHbFU1Vm8wT05qVjgrOW93RFFZSktvWklodmNOQVFFTEJRQXcKRWpFUU1BNEdBMVVFQXhNSGIzTmlZUzFqWVRBZUZ3MHlNREE0TWpFeE1ESTJNamRhRncwek1EQTRNVGt4TURJMgpNamRhTUNreEp6QWxCZ05WQkFNVEhtOXpZbUV0YjNCbGJpMXpaWEoyYVdObExXSnliMnRsY2kxaGVuVnlaVENDCkFTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBS0JTZjlLL0RsZDl6UGZoM1lWWEkrYWIKeS9wNkZ5bThXNXU2R2ZVQS9rMFB6ZlpjTE1neHhuM2ZtNmh1ckdkZVdzejIrZWc0RytGUVZXOWRNU3Q3MTlOTgphMU0va1UxZmdmZXd6V0VaK3BKMzV3OE1McEMyNnBPN3V0MEZRbnpycUE5bmhEYmhFbk1wUzhwYnh1eEE2YVljCjBGOWZXTFg4VlhqTWlBVUlISzQwbXU1L0FERnJjZHcvL2psczlZN1VNaE9kc2syMWNGQnphS1dVOW9VVHo1T3IKS0dBb1NLbmNidHIwTWlMTWE2WG9ReWs4eFdRbm1kUDNqekRTL09iYXF4aUNzRU9MRlFCakFpQW0yNFVxY01mbwpKNGNnT3V6UnFzRXdXNlp2OU1xbW9JQ2x1UjZaRE1WbDhIRXM1WlVyMHM1NTlWYlAyZXphZkQrMHhJdTA0a0VDCkF3RUFBYU9DQVFVd2dnRUJNQTRHQTFVZER3RUIvd1FFQXdJRm9EQWRCZ05WSFNVRUZqQVVCZ2dyQmdFRkJRY0QKQVFZSUt3WUJCUVVIQXdJd0RBWURWUjBUQVFIL0JBSXdBRENCd1FZRFZSMFJCSUc1TUlHMmdpTnZjMkpoTFc5dwpaVzR0YzJWeWRtbGpaUzFpY205clpYSXRZWHAxY21VdWIzTmlZWUluYjNOaVlTMXZjR1Z1TFhObGNuWnBZMlV0ClluSnZhMlZ5TFdGNmRYSmxMbTl6WW1FdWMzWmpnaTl2YzJKaExXOXdaVzR0YzJWeWRtbGpaUzFpY205clpYSXQKWVhwMWNtVXViM05pWVM1emRtTXVZMngxYzNSbGNvSTFiM05pWVMxdmNHVnVMWE5sY25acFkyVXRZbkp2YTJWeQpMV0Y2ZFhKbExtOXpZbUV1YzNaakxtTnNkWE4wWlhJdWJHOWpZV3d3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCCkFLM3NPZlRLZW1NM3EwM3JoaGdQR3FaanZzeWpwbTEvM0lSeUhxMnZYZEF3SFQ5SVBVUzBLYStPUE9wNVdIV0gKRGtkS0Z0WWl0ZlVEVjNydEdqMUxpeE4rVUlsdno0V3hveU1RZHptc3c4V09nL0FwQStKay9jYXVyZ1JvaHVVWApnU1RMUitIOHVpQ3pydS9Ca0JzUEFMZFphc0RwQ0MyYk9xeEkyNkJ6dTRMRW84THRnNDVFcmk4OFNYUnQyc1hCCnAydGtLM0JZeWxIczBKeDZ0Z2ZFd0g0MHBCamRkWGdpMUcrTHBHNXd3NEV5UWJnR0ZYUFkxNGRrdGRmdzRXMnUKVE1VSTNjZVduYTMvOHc5QkE2eE1DMGdTaDhnWnNFQkg1bHVBVU5LeTBrWGpQZk5hcml5MDFLekJPKzdDd05PRQovTFNqQTNMZG9IK0ZLZHdrc0RLWmp0Zz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBb0ZKLzByOE9WMzNNOStIZGhWY2o1cHZMK25vWEtieGJtN29aOVFEK1RRL045bHdzCnlESEdmZCticUc2c1oxNWF6UGI1NkRnYjRWQlZiMTB4SzN2WDAwMXJVeitSVFYrQjk3RE5ZUm42a25mbkR3d3UKa0xicWs3dTYzUVZDZk91b0QyZUVOdUVTY3lsTHlsdkc3RURwcGh6UVgxOVl0ZnhWZU15SUJRZ2NyalNhN244QQpNV3R4M0QvK09XejFqdFF5RTUyeVRiVndVSE5vcFpUMmhSUFBrNnNvWUNoSXFkeHUydlF5SXN4cnBlaERLVHpGClpDZVowL2VQTU5MODV0cXJHSUt3UTRzVkFHTUNJQ2JiaFNwd3grZ25oeUE2N05HcXdUQmJwbS8weXFhZ2dLVzUKSHBrTXhXWHdjU3psbFN2U3pubjFWcy9aN05wOFA3VEVpN1RpUVFJREFRQUJBb0lCQVFDV1JuNVdGb3ZrNnFCVAp3YjBZbldPaloybTljTytCU1hNODl5WVpoMExYRFBkcjgxNXVrR21UMXlOYXI5S2VXYzBXem5IVmY3SnljaENECkFJRjBWdk1vdHlyZ3IzY05aWGEzcTF2M3BwZys3bkVBbzlTS0JVckFDM25PYm4yeUJscFRoaDVpS25wV3crQ3MKMzNZSVFaaEJBa1UzQUhKd3N3T1M1WFNoOHNhZmFtZllvbkNacC9JOUZrdklQaE1JQUxNN1dzWS9QZ3RZTTBVUQo5djhidnZrZlpaSjBleGVzcnoxT0x2MjFvSmYwV1B1aGZRUkpnc2RkSFBuMDMxT1Zta3Q2REFHNFJSTHRQOGt4CmdYTVVUV3hXbVY1SzlHRTNpUk1DTzJRVGRDd2M4TkFYUXp6K2JGL1ZqSzhLakdJVkJON0lqKzNxeGduTlRPdEUKTmNZOTJTRFpBb0dCQU5BZzRnNVpXeHZuMFV3WEEyV0dQeldPS0l5eTJweGpZanBxbXVlUXZYeDJ0YThjODBoYgpNQW9Edk5DTUdsYVhzY2lDbktKNFpSVnF0NitUNWRVNkxUUVJaaXJ5dmVFL2ZYdlg5KzVRaFBCWXNheGZvWjF2CjJQeFVxbzQvemsxdXpCc3hjTmwxK05mR1pDZ0p1ZVlHLzgzNzRoU29VWWFXa255M01XMzJLa2d2QW9HQkFNVXkKcTRSVmlDNUN2akJBc1dDWnVTL3BySVFSK1JTUGY5T2ZmQXZDV0d2ZnVyYjQ2LzBaY2J3QjNSdk8zS0h3OGlCYgo5ZTlFeHprQjlNNkxUMUd0YjhJOUZLZGV1YnhWTFJOMU9LYVdQRHRkWUxleU5MNStiK1lDeDE2ODJsQ1U2dGdXCjE0SGxGSGR1cUFRSW5wZ3FnSE0zekdhZ0graGptTm5EbWdYN0huQ1BBb0dCQUlCNzdGSERZL1ZrTk5idVZoQjAKd2N6RUI5QmtFWVQ5N1lQMmo4NW9rakdsN3g4OWxncVRFS0wrRDdBRzdiT0xUaHRrVm1JT1JRamxxcVBmZjhFVQpleGRycmxEUkxkdENJS3MxZGo5T3dlTEdQbGtWYUdZU3lEZHQ1U1NQeTBJT0pqNmJWUGxLVk9hUCtRQ21rSGFxCjEzeElCUmVQbVZTbTI2UFdTOU9BWmpYTkFvR0FHeGg4UXNHeDVaRmNLcXNvOURvTEhROUJtaUFTRm9ZbExVSFQKdkpYbXFtUGlkdk83RVZybXFzdWl3d2hvZm9QcDhSSlJ0NSsrdEJHVnZxK2JwWUJzUThjNnlFaVd3czc5VTVnZQp3WjBSQjZNci8vR25sNmt0M08veXp3eXAvcnFIamt1Tkx4YjMrZlVsZHZCc1FrSk14Z2didU5vMXFDdlBPOVRKCm5CckdNdmNDZ1lFQWdUVWoydkZseG0xSTZjY2h2LzhydXJmUmRzNEF5WWRUc28yTkpKWndPU1Y2dkZLTjVDVDEKMU0xVVNVTDJBdk5sU1dvcE5MT24rbzI0U1QyVys2dVVvdHFKRTZTWkJ3akhyRDZxdXJJSUp2cWtKN0R2L2ZqMQpwcGVXcFI4b3pla3RETG9LRVJ1Zlc3dTZxZjNQcXRmWnNuaTVPYmxHbmdONlQra0E0R2c3OVpZPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+---
+# Source: open-service-broker-azure/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: osba-open-service-broker-azure
+  labels:
+    app: osba-open-service-broker-azure
+    chart: "open-service-broker-azure-1.8.4"
+    release: "osba"
+    heritage: "Helm"
+stringData:
+  azure-client-secret: $AZURE_CLIENT_SECRET
+  encryption-key: This is a key that is 256 bits!!
+  redis-password: "password"
+  basic-auth-password: "password"
+---
+# Source: open-service-broker-azure/charts/redis/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: osba-redis
+  labels:
+    app: osba-redis
+    chart: "redis-0.10.0"
+    release: "osba"
+    heritage: "Helm"
+  annotations:
+    volume.alpha.kubernetes.io/storage-class: default
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "8Gi"
+---
+# Source: open-service-broker-azure/charts/redis/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: osba-redis
+  labels:
+    app: osba-redis
+    chart: "redis-0.10.0"
+    release: "osba"
+    heritage: "Helm"
+spec:
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: redis
+  selector:
+    app: osba-redis
+---
+# Source: open-service-broker-azure/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: osba-open-service-broker-azure
+  labels:
+    app: osba-open-service-broker-azure
+    chart: "open-service-broker-azure-1.8.4"
+    release: "osba"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  selector:
+    app: osba-open-service-broker-azure
+  ports:
+  - name: https
+    port: 443
+    targetPort: 8443
+    protocol: TCP
+---
+# Source: open-service-broker-azure/charts/redis/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: osba-redis
+  labels:
+    app: osba-redis
+    chart: "redis-0.10.0"
+    release: "osba"
+    heritage: "Helm"
+spec:
+  template:
+    metadata:
+      labels:
+        app: osba-redis
+    spec:
+      containers:
+      - name: osba-redis
+        image: "bitnami/redis:3.2.9-r2"
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: osba-redis
+              key: redis-password
+        ports:
+        - name: redis
+          containerPort: 6379
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        volumeMounts:
+        - name: redis-data
+          mountPath: /bitnami/redis
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: osba-redis
+---
+# Source: open-service-broker-azure/templates/deployment.yaml
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: osba-open-service-broker-azure
+  labels:
+    app: osba-open-service-broker-azure
+    chart: "open-service-broker-azure-1.8.4"
+    release: "osba"
+    heritage: "Helm"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: osba-open-service-broker-azure
+  template:
+    metadata:
+      labels:
+        app: osba-open-service-broker-azure
+        chart: "open-service-broker-azure-1.8.4"
+        release: "osba"
+        heritage: "Helm"
+        releaseRevision: "1"
+    spec:
+      containers:
+        - name: open-service-broker-azure
+          image: osbapublicacr.azurecr.io/microsoft/azure-service-broker:v1.8.4
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: LOG_LEVEL
+            value: INFO
+          - name: ENVIRONMENT
+            value: AzurePublicCloud
+          - name: AZURE_SUBSCRIPTION_ID
+            value: $AZURE_SUBSCRIPTION_ID
+          - name: AZURE_TENANT_ID
+            value: 1AZURE_TENANT_ID
+          - name: AZURE_CLIENT_ID
+            value: $AZURE_CLIENT_ID
+          - name: AZURE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: osba-open-service-broker-azure
+                key: azure-client-secret
+          - name: REDIS_HOST
+            value: osba-redis
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: osba-open-service-broker-azure
+                key: redis-password
+          - name: REDIS_PREFIX
+            value: 
+          - name: CRYPTO_AES256_KEY
+            valueFrom:
+              secretKeyRef:
+                name: osba-open-service-broker-azure
+                key: encryption-key
+          - name: API_SERVER_PORT
+            value: "8443"
+          - name: API_SERVER_TLS_CERT_PATH
+            value: /app/certs/tls.crt
+          - name: API_SERVER_TLS_KEY_PATH
+            value: /app/certs/tls.key
+          - name: BASIC_AUTH_USERNAME
+            value: username
+          - name: BASIC_AUTH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: osba-open-service-broker-azure
+                key: basic-auth-password
+          - name: MIN_STABILITY
+            value: EXPERIMENTAL
+          volumeMounts:
+          - name: cert
+            mountPath: /app/certs
+            readOnly: true
+          ports:
+          - containerPort: 8443
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8443
+              scheme: HTTPS
+            failureThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8443
+              scheme: HTTPS
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      volumes:
+      - name: cert
+        secret:
+          secretName: osba-open-service-broker-azure-cert
+---
+# Source: open-service-broker-azure/templates/broker.yaml
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ClusterServiceBroker
+metadata:
+  name: osba
+spec:
+  url: https://osba-open-service-broker-azure.osba.svc.cluster.local
+  caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM4VENDQWRtZ0F3SUJBZ0lSQUoxM3JwREozeXliRS9RU2pTRjZyYVV3RFFZSktvWklodmNOQVFFTEJRQXcKRWpFUU1BNEdBMVVFQXhNSGIzTmlZUzFqWVRBZUZ3MHlNREE0TWpFeE1ESTJNamRhRncwek1EQTRNVGt4TURJMgpNamRhTUJJeEVEQU9CZ05WQkFNVEIyOXpZbUV0WTJFd2dnRWlNQTBHQ1NxR1NJYjNEUUVCQVFVQUE0SUJEd0F3CmdnRUtBb0lCQVFDK1RTSHJJaTJIZUVPZnpPc3hwb2RFM29PM0ZqR3I1QnhHVlp5T2dBQlprZkREdTNLMkwreTUKMVFZNThVbzJFNW50YnIyb3ZURjZwMEtFY0QxcEZkb21OVTlCNXQ5Q2VFZXdXTG5IK1VNVk44NUxKVTc1VGkzTwpNeGRBamI1NzRjdCtaaUp5MFBJdEhhOXR0bDZ6WFNqanBoZU5TYmZCUE1vRnNuZTl6Wk54VUtvc29CUXlndDVQCllRdHVCMCt1RmN2ckVNekxERnFkbWNuR3plNlhEZzV6Z2g4YlVxVG04TVlJYWxqSkF5ZzFTaGtncWFhd0ZBTncKUkgxSW5oVG9LUjhaMUJCNkpQc2Iva05yVUt6MTFsR2pZNy9NdWJzMVhvbmpmYTRmckZFSEVhQklWT0ZUWjBFegpCWW9kQmpFTHl3VElaUDMyeklZb3oycEsyKzVpY1FYekFnTUJBQUdqUWpCQU1BNEdBMVVkRHdFQi93UUVBd0lDCnBEQWRCZ05WSFNVRUZqQVVCZ2dyQmdFRkJRY0RBUVlJS3dZQkJRVUhBd0l3RHdZRFZSMFRBUUgvQkFVd0F3RUIKL3pBTkJna3Foa2lHOXcwQkFRc0ZBQU9DQVFFQXFYQ1hBRWNmTnIrZlJzaWwwcDN4Q25oTFk1dU1HREdSR01VcApzVlU5dmJScVdJWFpvempRZEx1cW1wNVRscGU5MVBwa1pXQnM1NUdsQkttanpFakNYT0hTaXNkSmNhL2lYekdmCnhLcmtuSUZhbGpreFZ4OFQ5UDNTanJvenpvK1RTN2xLZFpCSGlqY2FHVHU5Szc4cUlVcjRxK3czdzR4UnRLK3EKeVpEREt0RVBPdzcyMVhONnhBbmYzQWIwdUhFbzI4akd0eEM2WEl4YVBBTU1najdzeEFnMU1CTFBPVGpDWGhWVApaQ1F2MVF4VzBaTXh1dzYvaURKS2JPUm1QN2JJeDR2WE9vUi9wa002bERjcGRaY2gzM0ZHSkVtZUcrR1ZyR2lOClRjWVN0a2VqY014SjJwamF6Kzd5bzAxUUR1MG0xRGpLL2NIY1Yvek5UYi9Delh6Y3ZBPT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+  authInfo:
+    basic:
+      secretRef:
+        name: "osba-open-service-broker-azure-auth"
+        namespace: "osba"

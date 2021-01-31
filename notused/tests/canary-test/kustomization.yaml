@@ -1,0 +1,9 @@
+namespace: canary-test
+bases:
+  - github.com/weaveworks/flagger/kustomize/tester
+  - github.com/weaveworks/flagger/kustomize/podinfo
+
+resources:
+ - namespace.yaml
+ - podinfo-ingress.yaml
+ - podinfo-canary.yaml

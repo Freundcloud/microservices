@@ -1,0 +1,5 @@
+namespace: linkerd
+bases:
+  - github.com/weaveworks/flagger/kustomize/base/flagger
+patchesStrategicMerge:
+  - flagger-patch.yaml

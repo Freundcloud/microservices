@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rer-core-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rer-core-services
+      aadpodidbinding: $RER_MI_NAME
+  template:
+    metadata:
+      labels:
+        app: rer-core-services
+        aadpodidbinding: $RER_MI_NAME
+    spec:
+      hostAliases:
+      - ip: "10.13.3.60"
+        hostnames:
+          - "rer-core-services"
+      - ip: "10.13.3.30"
+        hostnames:
+          - "companies-house-service"
+      - ip: "10.13.3.20"
+        hostnames:
+          - "address-lookup-service"
+      - ip: "10.13.3.10"
+        hostnames: 
+          - "adb2c-user-service"
+      - ip: "10.14.3.10"
+        hostnames:
+          - "external-we-app"
+      - ip: "10.13.3.40"
+        hostnames:
+          - "document-management-service"
+
+      containers:
+        - name: rer-core-services
+          image: $ACR.azurecr.io/rer-core-services:latest
+          ports:
+            - name: http
+              containerPort: 80
+          livenessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /health
+              port: 80
+          readinessProbe:
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            httpGet:
+              path: /health
+              port: 80
+          resources:
+            limits:
+              cpu: 250m
+              memory: 1024Mi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          env:
+            - name: APPINSIGHTS_INSTRUMENTATIONKEY
+              value: "$INSTRUMENTATION_KEY"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "$DOTNETENVIRONMENT_NAME"
+      imagePullSecrets:
+        - name: acr-secret

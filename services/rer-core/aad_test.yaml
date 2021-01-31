@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rer-core-aad
+    aadpodidbinding: $RER_MI_NAME
+  name: rer-core-aad
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: rer-core-aad
+  template:
+    metadata:
+      labels:
+        app: rer-core-aad
+        aadpodidbinding: $RER_MI_NAME
+    spec:
+      containers:
+        - name: rer-core-aad
+          image: "mcr.microsoft.com/oss/azure/aad-pod-identity/demo:v1.6.3"
+          imagePullPolicy: Always
+          args:
+            - "--subscriptionid=$ARM_SUBSCRIPTION_ID"
+            - "--clientid=$RER_IDENTITY_CLIENT_ID"
+            - "--resourcegroup=$RER_MI_RESOURCE_GROUP"
+            - "--aad-resourcename=https://vault.azure.net/"
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: MY_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+      nodeSelector:
+        kubernetes.io/os: linux

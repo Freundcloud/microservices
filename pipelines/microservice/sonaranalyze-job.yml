@@ -1,0 +1,61 @@
+parameters: 
+ dependsOn: ''
+ serviceDockerFile: ''
+ serviceDockerFileArgs: ''
+ serviceImageTag: ''
+ projectBaseDir: ''
+ SonarProjectName: ''
+
+jobs:
+  - job: SonarAnalyze
+    displayName: Run Sonar Analyze
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: PowerShell@2
+      displayName: Create GUID for Project
+      inputs:
+        targetType: 'inline'
+        script: |
+          $paths = Get-ChildItem -include *.csproj -Recurse
+          foreach($pathobject in $paths) 
+          {
+              $path = $pathobject.fullname
+              $doc = New-Object System.Xml.XmlDocument
+              $doc.Load($path)
+              $child = $doc.CreateElement("ProjectGuid")
+              $child.InnerText = "{"+[guid]::NewGuid().ToString().ToUpper()+"}"
+              $node = $doc.SelectSingleNode("//Project/PropertyGroup")
+              $node.AppendChild($child)
+              $doc.Save($path)
+          }
+    - task: NuGetCommand@2
+      displayName: Get Nuget packages
+      inputs:
+        command: 'restore'
+        restoreSolution: '**/*.sln'
+        feedsToUse: 'select'
+        vstsFeed: 'be9eed3c-7b4f-40e5-9a47-6fb3d3764885/a3506a0f-ba41-4b6e-bcd3-cd84d73d74b2'
+
+    - task: SonarCloudPrepare@1
+      displayName: Sonar Analyze Prepare task
+      inputs:
+        SonarCloud: 'SonarCloud-RER'
+        organization: 'ofgem-eserve'
+        scannerMode: 'MSBuild'
+        projectKey: '${{ parameters.SonarProjectName }}'
+        projectName: '${{ parameters.SonarProjectName }}'
+
+    - task: DotNetCoreCLI@2
+      displayName: Build for SonarCloud
+      inputs:
+        command: 'build'
+        projects: '**/*.sln' 
+
+    - task: SonarCloudAnalyze@1
+      displayName: Running Sonar Analyze
+
+    - task: SonarCloudPublish@1
+      displayName: Publishing Sonar Rapport.
+      inputs:
+        pollingTimeoutSec: '300'

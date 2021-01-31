@@ -1,0 +1,79 @@
+parameters:
+  environmentName: ''
+  serviceName: ''
+  aksServiceName: ''
+  aksNameSpace: ''
+  serviceFacing: ''
+  serviceImageTag: ''
+  dbMigrationProjectName: ''
+  ContainerRegistry: 'commonrercr'
+
+
+
+jobs:
+  - deployment: Deploy
+    pool:
+      vmImage: 'windows-latest'
+    displayName: Deploy to ${{ parameters.environmentName }} aks
+    environment: ${{ parameters.environmentName }}
+    variables:
+      Resource.Group: 'ofg-${{ parameters.environmentName }}-i-${{ parameters.serviceName }}-rg'
+      Service.Identity: '${{ parameters.environmentName }}-i-${{ parameters.serviceName }}-user-pi'
+      Container.Registry: '${{ parameters.ContainerRegistry }}'
+      Image.Tag: '${{ parameters.serviceImageTag }}'
+      Instrumentation.Key: '${{ parameters.appInsightsKey }}'
+      Env.Name: '${{ parameters.environmentName }}' 
+      Database.Server: 'ofg-${{ parameters.environmentName }}-i-shared-sql.database.windows.net,1433'
+      Database.Name: 'ofg-${{ parameters.environmentName }}-i-${{ parameters.serviceName }}-db'
+      Database.Admin: 'ofg-db-admin'
+      Database.PasswordKey: 'ofg-${{ parameters.environmentName }}-i-db-password'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+
+            - download: current
+              condition: ne('${{ parameters.dbMigrationProjectName }}', '')
+              artifact: 'DbMigrations'
+              displayName: Download database migration script
+
+            - task: SqlAzureDacpacDeployment@1
+              displayName: Run database migrations
+              condition: ne('${{ parameters.dbMigrationProjectName }}', '')
+              inputs:
+                azureSubscription: 'Ofgem-RER-Data'
+                AuthenticationType: 'server'
+                ServerName: '$(Database.Server)'
+                DatabaseName: '$(Database.Name)'
+                SqlUsername: '$(Database.Admin)'
+                SqlPassword: 'WgnrMesu9wA3jfl9'
+                deployType: 'SqlTask'
+                SqlFile: '$(Pipeline.Workspace)/DbMigrations/a/sql/migrations.sql'
+                IpDetectionMethod: 'AutoDetect'
+
+            - task: AzureCLI@2
+              inputs:
+                azureSubscription: 'Ofgem-RER-Data'
+                scriptType: 'bash'
+                scriptLocation: inlineScript
+                addSpnToEnvironment: true
+                failOnStandardError: false
+                inlineScript: |
+                  az aks get-credentials \
+                    --name 'ofg-${{ parameters.environmentName }}-${{ parameters.serviceFacing }}-aks' \
+                    --resource-group  'ofg-${{ parameters.environmentName }}-${{ parameters.serviceFacing }}-aks-rg' \
+                    --admin --overwrite-existing
+            - task: AzureCLI@2
+              displayName: Update the service Image with '${{ parameters.aksServiceName }}=commonrercr-azurecr.io/${{ parameters.aksServiceName }}:$(Build.BuildNumber)'
+              inputs:
+                azureSubscription: 'Ofgem-RER-Data'
+                scriptType: 'bash'
+                scriptLocation: inlineScript
+                addSpnToEnvironment: true
+                failOnStandardError: true
+                inlineScript: |
+                  kubectl config set-context --current --namespace='ofg-${{ parameters.environmentName }}-${{ parameters.serviceFacing }}-${{ parameters.aksNameSpace }}'
+                  kubectl set image deployment/'${{ parameters.aksServiceName }}' '${{ parameters.aksServiceName }}=commonrercr.azurecr.io/${{ parameters.aksServiceName }}:$(Build.BuildNumber)'
+
+                  

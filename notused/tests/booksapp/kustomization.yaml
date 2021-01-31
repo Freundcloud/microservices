@@ -1,0 +1,5 @@
+namespace: booksapp
+resources:
+  - namespace.yaml
+  - booksapp.yaml
+  - ingress.yaml

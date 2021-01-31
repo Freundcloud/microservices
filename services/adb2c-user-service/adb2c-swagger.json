@@ -1,0 +1,295 @@
+{
+  "x-generator": "NSwag v13.3.0.0 (NJsonSchema v10.1.11.0 (Newtonsoft.Json v11.0.0.0))",
+  "swagger": "2.0",
+  "info": {
+    "title": "ADB2C-USER-SERVICE",
+    "version": "1.0.0"
+  },
+  "host": "10.13.3.10",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "text/plain",
+    "application/json",
+    "text/json"
+  ],
+  "paths": {
+    "/Adb2cUser/{azureId}": {
+      "get": {
+        "tags": [
+          "Adb2cUser"
+        ],
+        "operationId": "Adb2cUser_GetUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "azureId",
+            "in": "path",
+            "required": true,
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Adb2cUserViewModel"
+            }
+          },
+          "404": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          },
+          "500": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Adb2cUser"
+        ],
+        "operationId": "Adb2cUser_DeleteUser",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "azureId",
+            "in": "path",
+            "required": true,
+            "x-nullable": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          },
+          "500": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/Adb2cUser/list": {
+      "get": {
+        "tags": [
+          "Adb2cUser"
+        ],
+        "operationId": "Adb2cUser_ListUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "name": "azureIds",
+            "in": "query",
+            "collectionFormat": "multi",
+            "x-nullable": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Adb2cUserViewModel"
+              }
+            }
+          },
+          "400": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ValidationProblemDetails"
+            }
+          },
+          "404": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ProblemDetails"
+            }
+          },
+          "500": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/Adb2cUser": {
+      "post": {
+        "tags": [
+          "Adb2cUser"
+        ],
+        "operationId": "Adb2cUser_CreateUser",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "parameters": [
+          {
+            "name": "model",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Adb2cUserCreationBindingModel"
+            },
+            "x-nullable": false
+          }
+        ],
+        "responses": {
+          "201": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Adb2cUserViewModel"
+            }
+          },
+          "303": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/Adb2cUserViewModel"
+            }
+          },
+          "400": {
+            "x-nullable": false,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ValidationProblemDetails"
+            }
+          },
+          "500": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Adb2cUserViewModel": {
+      "type": "object",
+      "properties": {
+        "azureId": {
+          "type": "string"
+        },
+        "emailAddress": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "jobTitle": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        }
+      }
+    },
+    "ProblemDetails": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string"
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      }
+    },
+    "ValidationProblemDetails": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/ProblemDetails"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "errors": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Adb2cUserCreationBindingModel": {
+      "type": "object",
+      "required": [
+        "emailAddress",
+        "title",
+        "firstName",
+        "lastName",
+        "jobTitle",
+        "phoneNumber"
+      ],
+      "properties": {
+        "emailAddress": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "firstName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lastName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "jobTitle": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phoneNumber": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

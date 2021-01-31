@@ -1,0 +1,88 @@
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  creationTimestamp: null
+  name: adb2c-user-service.ofg-dev-i-adb2c.svc.cluster.local
+  namespace: ofg-dev-i-adb2c
+spec:
+  routes:
+  - condition:
+      method: POST
+      pathRegex: /Adb2cUser
+    name: POST /Adb2cUser
+    responseClasses:
+    - condition:
+        status:
+          max: 201
+          min: 201
+    - condition:
+        status:
+          max: 303
+          min: 303
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 500
+          min: 500
+      isFailure: true
+  - condition:
+      method: GET
+      pathRegex: /Adb2cUser/list
+    name: GET /Adb2cUser/list
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+    - condition:
+        status:
+          max: 500
+          min: 500
+      isFailure: true
+  - condition:
+      method: DELETE
+      pathRegex: /Adb2cUser/[^/]*
+    name: DELETE /Adb2cUser/{azureId}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 404
+          min: 404
+    - condition:
+        status:
+          max: 500
+          min: 500
+      isFailure: true
+  - condition:
+      method: GET
+      pathRegex: /Adb2cUser/[^/]*
+    name: GET /Adb2cUser/{azureId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+    - condition:
+        status:
+          max: 500
+          min: 500
+      isFailure: true

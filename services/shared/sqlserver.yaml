@@ -1,0 +1,20 @@
+apiVersion: azure.microsoft.com/v1alpha1
+kind: ResourceGroup
+metadata:
+  name: ofg-$ENV-$FACING-shared-rg
+spec:
+  location: "uksouth"
+---
+apiVersion: azure.microsoft.com/v1alpha1
+kind: AzureSqlServer
+metadata:
+  name: ofg-$ENV-$FACING-shared-sql
+  labels: # Provide tags to add to AzureSqlDatabase as labels
+    tag1: value1
+    tag2: value2
+spec:
+  location: "uksouth"
+  resourcegroup: ofg-$ENV-$FACING-shared-rg
+  # Use the field below to optionally specify a different keyvault 
+  # to store the server admin credential secrets in
+  keyVaultToStoreSecrets: ofg-$ENV-core-kv

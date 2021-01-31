@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: internal-web-app
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    service.beta.kubernetes.io/azure-load-balancer-internal-subnet: "ofg-$ENV-$FACING-sub-apps"
+spec:
+  loadBalancerIP: 10.13.3.50
+  type: LoadBalancer
+  selector:
+    app: internal-web-app
+  ports:
+    - port: 80
+      targetPort: 80

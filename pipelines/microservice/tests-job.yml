@@ -1,0 +1,46 @@
+parameters:
+ dependsOn: ''
+ testDockerFile: 'docker-compose-tests.yml'
+ testDockerFileArgs: ''
+ integrationTestsUseKeyVault: false
+
+jobs:
+- job: Tests
+  dependsOn: '${{ parameters.dependsOn }}'
+  displayName: Run tests and report coverage
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - task: AzureCLI@2
+    displayName: 'Get Key Vault token'
+    condition: eq('${{ parameters.integrationTestsUseKeyVault }}', true)
+    inputs:
+      azureSubscription: RER-InfraDev-Dev
+      scriptType: pscore
+      scriptLocation: inlineScript
+      inlineScript: |
+        $TOKEN= az account get-access-token --resource=https://vault.azure.net --query accessToken -o tsv
+        Write-Output("##vso[task.setvariable variable=KEY_VAULT_TOKEN]$TOKEN")
+
+  - task: DockerCompose@0
+    displayName: 'Run tests'
+    inputs:
+     dockerComposeFile: '${{ parameters.testDockerFile }}'
+     dockerComposeCommand: 'up --abort-on-container-exit'
+     dockerComposeFileArgs: '${{ parameters.testDockerFileArgs }}'
+
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    condition: succeededOrFailed()
+    inputs:
+     testResultsFormat: VSTest
+     testResultsFiles: '**/*.trx'
+     failTaskOnFailedTests: true
+
+  - task: PublishCodeCoverageResults@1
+    displayName: Publish code coverage report
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '**/coverage.cobertura.xml'
+      # Set to true when Bug 1504 - Once integration tests are reliable
+      failIfCoverageEmpty: false 

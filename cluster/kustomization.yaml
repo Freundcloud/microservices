@@ -1,0 +1,7 @@
+bases:
+  - ./common/
+  - ./ingress/
+  # - ./letsencrypt/
+  - ./linkerd/
+  - ./flagger/
+  - ./mic/

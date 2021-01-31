@@ -1,0 +1,33 @@
+parameters:
+ dbMigrationProjectName: ''
+ dbMigrationStartupProjectName: ''
+ dependsOn: ''
+ 
+jobs:
+- job: Migrations
+  displayName: Script and publish database migrations
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: and(succeeded(), ne('${{ parameters.dbMigrationProjectName }}', ''))
+  steps:
+    - task: UseDotNet@2
+      displayName: Use dotnet 3.1.200
+      inputs:
+        version: '3.1.200'
+
+    - task: DotNetCoreCLI@2
+      displayName: Install dotnet-ef
+      inputs:
+        command: 'custom'
+        custom: 'tool'
+        arguments: 'install --global dotnet-ef'
+
+    - task: DotNetCoreCLI@2
+      displayName: Script database migrations
+      inputs:
+        command: 'custom'
+        custom: 'ef'
+        arguments: 'migrations script --project ${{ parameters.dbMigrationProjectName }} --startup-project ${{ parameters.dbMigrationStartupProjectName }} --output $(build.artifactstagingdirectory)\sql\migrations.sql -i'
+    
+    - publish: $(build.artifactstagingdirectory)\sql\migrations.sql
+      artifact: 'DbMigrations'
+      displayName: Publish database migrations

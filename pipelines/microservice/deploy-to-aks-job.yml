@@ -1,0 +1,109 @@
+parameters:
+ environmentName: 'dev'
+ dotnetEnvironmentName: 'DevCloud'
+ domainPrefix: 'dev'
+ serviceName: ''
+ kubernetesFile: 'kubernetes-template.yml'
+ serviceImageTag: ''
+ appInsightsKey: ''
+ dbMigrationProjectName: ''
+
+
+jobs:
+- deployment: Deploy
+  pool:
+    vmImage: 'windows-latest'
+  displayName: Deploy to ${{ parameters.environmentName }} aks
+  environment: ${{ parameters.environmentName }}
+  variables:
+   Resource.Group: '${{ parameters.environmentName }}-${{ parameters.serviceName }}-rg'
+   Service.Identity: '${{ parameters.environmentName }}-${{ parameters.serviceName }}-identity'
+   # Replaced in Kubernetes template
+   Container.Registry: 'commonrercr'
+   Image.Tag: '${{ parameters.serviceImageTag }}'
+   Instrumentation.Key: '${{ parameters.appInsightsKey }}'
+   Env.Name: '${{ parameters.environmentName }}' #TODO remove once all services have moved over to DotnetEnvironment.Name
+   DotnetEnvironment.Name: '${{ parameters.dotnetEnvironmentName }}'
+   DomainPrefix: '${{ parameters.domainPrefix }}'
+   # Used in Sql task
+   Database.Server: '${{ parameters.environmentName }}-${{ parameters.serviceName }}-db-server.database.windows.net,1433'
+   Database.Name: '${{ parameters.environmentName }}-${{ parameters.serviceName }}-db'
+   Database.Admin: '${{ parameters.environmentName }}-${{ parameters.serviceName }}-db-admin'
+   Database.PasswordKey: '${{ parameters.environmentName }}-${{ parameters.serviceName }}-db-password' 
+  strategy:
+    runOnce:    
+      deploy:
+        steps:
+        - checkout: self
+
+        - download: current
+          condition: ne('${{ parameters.dbMigrationProjectName }}', '')
+          artifact: 'DbMigrations'
+          displayName: Download database migration script
+
+        - task: AzureKeyVault@1
+          condition: ne('${{ parameters.dbMigrationProjectName }}', '')
+          displayName: Get database password from Key vault
+          inputs:
+            azureSubscription: 'RER-InfraDev-Dev'
+            KeyVaultName: 'common-rer-kv'
+            SecretsFilter: '$(Database.PasswordKey)'
+
+
+        - task: SqlAzureDacpacDeployment@1
+          displayName: Run database migrations
+          condition: ne('${{ parameters.dbMigrationProjectName }}', '')
+          inputs:
+            azureSubscription: 'RER-InfraDev-Dev'
+            AuthenticationType: 'server'
+            ServerName: '$(Database.Server)'
+            DatabaseName: '$(Database.Name)'
+            SqlUsername: '$(Database.Admin)'
+            # Azure KeyVault task creates a variable for Database.PasswordKey's Value
+            # $($(Database.PasswordKey)) was not evaluating i.e value of variable from another variable
+            # Recreating variable name using parameters
+            SqlPassword: '$(${{ parameters.environmentName }}-${{ parameters.serviceName }}-db-password)'
+            deployType: 'SqlTask'
+            SqlFile: '$(Pipeline.Workspace)/DbMigrations/a/sql/migrations.sql'
+            IpDetectionMethod: 'AutoDetect'
+
+        - task: AzureCLI@2
+          displayName: 'Get resource id and client id for $(Service.Identity)'
+          condition: ne('${{ parameters.serviceName }}', '')
+          inputs:
+            scriptType: 'pscore'
+            azureSubscription: 'RER-InfraDev-Dev'
+            scriptLocation: inlineScript
+            addSpnToEnvironment: true
+            failOnStandardError: true
+            inlineScript: |
+              # Define environment variables
+              $ARM_RESOURCE_ID= az identity show --name $(Service.Identity) --resource-group $(Resource.Group) --query id
+              $ARM_CLIENT_ID= az identity show --name $(Service.Identity) --resource-group $(Resource.Group) --query clientId | xargs
+
+              # Set pipeline variables for use in subsequent tasks
+              Write-Output("##vso[task.setvariable variable=Resource.Id]$ARM_RESOURCE_ID")
+              Write-Output("##vso[task.setvariable variable=Client.Id]$ARM_CLIENT_ID")
+              
+        - task: Bash@3
+          displayName: Prepare Kubernetes manifest
+          inputs:
+            targetType: 'inline'
+            script: |
+                envsubst < ${{ parameters.kubernetesFile }} > kubernetes.yml
+
+        - task: Kubernetes@1
+          displayName: Deploy to Azure Kubernetes Service
+          inputs:
+            connectionType: 'Azure Resource Manager'
+            azureSubscriptionEndpoint: 'RER-InfraDev-Dev'
+            azureResourceGroup: '${{ parameters.environmentName }}-rer-rg'
+            kubernetesCluster: '${{ parameters.environmentName }}-rer-aks'
+            command: 'apply'
+            useConfigurationFile: true
+            configuration: 'kubernetes.yml'
+            secretType: 'dockerRegistry'
+            containerRegistryType: 'Azure Container Registry'
+            azureSubscriptionEndpointForSecrets: 'RER-InfraDev-Dev'
+            azureContainerRegistry: 'commonrercr.azurecr.io'
+            secretName: 'registry-pull-secret'

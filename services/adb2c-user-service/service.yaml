@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: adb2c-user-service
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    service.beta.kubernetes.io/azure-load-balancer-internal-subnet: "ofg-$ENV-$FACING-sub-apps"
+    app.kubernetes.io/name: loadtester
+    app.kubernetes.io/instance: flagger
+spec:
+  loadBalancerIP: 10.13.3.10
+  type: LoadBalancer
+  ports:
+    - port: 80
+  selector:
+    app: adb2c-user-service
+

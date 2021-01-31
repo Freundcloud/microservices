@@ -1,0 +1,21 @@
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  creationTimestamp: null
+  name: companies-house-service.ofg-dev-i-companies-house.svc.cluster.local
+  namespace: ofg-dev-i-companies-house
+spec:
+  routes:
+  - condition:
+      method: GET
+      pathRegex: /Address/[^/]*
+    name: GET /Address/{companyNumber}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404

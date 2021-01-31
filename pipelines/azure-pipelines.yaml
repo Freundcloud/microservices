@@ -1,0 +1,583 @@
+trigger:
+  - master
+
+stages:
+  - stage: Sbx
+    jobs:
+      - deployment: DeploySboxCoreInternal
+        displayName: deploy Sbox Core Internal
+        pool:
+          vmImage: "ubuntu-latest"
+        environment: "sbx"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@1
+                  displayName: Get service principal credentials
+                  inputs:
+                     azureSubscription: "Ofgem-RER-Sbox"
+                     scriptLocation: inlineScript
+                     addSpnToEnvironment: true
+                     failOnStandardError: true
+                     inlineScript: |
+                       # Define environment variables
+                       export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+                       export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+                       export ARM_CLIENT_ID=$servicePrincipalId
+                       export ARM_CLIENT_SECRET=$servicePrincipalKey
+
+                       # Set pipeline variables for use in subsequent tasks
+                       echo "##vso[task.setvariable variable=arm_subscription_id]${ARM_SUBSCRIPTION_ID}"
+                       echo "##vso[task.setvariable variable=arm_tenant_id]${ARM_TENANT_ID}"
+                       echo "##vso[task.setvariable variable=arm_client_id]${ARM_CLIENT_ID}"
+                       echo "##vso[task.setvariable variable=arm_client_secret]${ARM_CLIENT_SECRET}"
+                - task: AzureCLI@1
+                  displayName: Connect to AKS Internal
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Sbox"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: false
+                    inlineScript: |
+                      az aks get-credentials \
+                        --name ofg-sbx-i-aks \
+                        --resource-group  ofg-sbx-i-aks-rg \
+                        --admin --overwrite-existing
+                - task: AzureCLI@1
+                  displayName: Deploy Cluster Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Sbox"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/sbx/env-int.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-sbx-i-aks-admin
+                      kustomize build ./cluster/ | envsubst |  kubectl apply -f -
+                      kubectl apply -f ./cluster/letsencrypt/namespace.yaml
+                      kubectl apply -f ./cluster/letsencrypt/deployment.yaml
+                      sleep 120
+                      kubectl apply -f ./cluster/letsencrypt/cluster_issuer.yaml                     
+                - task: AzureCLI@1
+                  displayName: Deploy RER Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Sbox"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/sbx/env-int.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-sbx-i-aks-admin
+                      kustomize build ./services/ | envsubst |  kubectl apply -f -
+
+      - deployment: DeploySboxCoreExternal
+        displayName: deploy Sbox Core External
+        pool:
+          vmImage: "ubuntu-latest"
+        environment: "sbx"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - task: AzureCLI@1
+                  displayName: Get service principal credentials
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Sbox"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      # Define environment variables
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+                      export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+
+                      # Set pipeline variables for use in subsequent tasks
+                      echo "##vso[task.setvariable variable=arm_subscription_id]${ARM_SUBSCRIPTION_ID}"
+                      echo "##vso[task.setvariable variable=arm_tenant_id]${ARM_TENANT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_id]${ARM_CLIENT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_secret]${ARM_CLIENT_SECRET}"
+                
+                - task: AzureCLI@1
+                  displayName: Connect to AKS
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Sbox"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: false
+                    inlineScript: |
+                      az aks get-credentials \
+                        --name ofg-sbx-e-aks \
+                        --resource-group  ofg-sbx-e-aks-rg \
+                        --admin --overwrite-existing
+
+                - task: AzureCLI@1
+                  displayName: Deploy Cluster Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Sbox"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/sbx/env-ext.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-sbx-e-aks-admin
+                      kustomize build ./cluster/ | envsubst |  kubectl apply -f -
+                      kubectl apply -f ./cluster/letsencrypt/namespace.yaml
+                      kubectl apply -f ./cluster/letsencrypt/deployment.yaml
+                      sleep 120
+                      kubectl apply -f ./cluster/letsencrypt/cluster_issuer.yaml                     
+                - task: AzureCLI@1
+                  displayName: Deploy RER Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Sbox"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/sbx/env-ext.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-sbx-e-aks-admin
+                      kustomize build ./services/external-web/ | envsubst |  kubectl apply -f -
+
+  - stage: DATA
+    jobs:
+      - deployment: DeployDATAInternal
+        displayName: deploy Data Internal
+        pool:
+          vmImage: "ubuntu-latest"
+        environment: "data"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: AzureCLI@1
+                  displayName: Get service principal credentials
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Data"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      # Define environment variables
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+                      export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+
+                      # Set pipeline variables for use in subsequent tasks
+                      echo "##vso[task.setvariable variable=arm_subscription_id]${ARM_SUBSCRIPTION_ID}"
+                      echo "##vso[task.setvariable variable=arm_tenant_id]${ARM_TENANT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_id]${ARM_CLIENT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_secret]${ARM_CLIENT_SECRET}"
+                - task: AzureCLI@1
+                  displayName: Connect to AKS Internal
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Data"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: false
+                    inlineScript: |
+                      az aks get-credentials \
+                        --name ofg-data-i-aks \
+                        --resource-group  ofg-data-i-aks-rg \
+                        --admin --overwrite-existing
+                - task: AzureCLI@1
+                  displayName: Deploy Cluster Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Data"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/data/env-int.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-data-i-aks-admin
+                      kustomize build ./cluster/ | envsubst |  kubectl apply -f -
+                      kubectl apply -f ./cluster/letsencrypt/namespace.yaml
+                      kubectl apply -f ./cluster/letsencrypt/deployment.yaml
+                      sleep 120
+                      kubectl apply -f ./cluster/letsencrypt/cluster_issuer.yaml                     
+                - task: AzureCLI@1
+                  displayName: Deploy RER Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Data"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/data/env-int.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-data-i-aks-admin
+                      kustomize build ./services/ | envsubst |  kubectl apply -f -
+
+
+      - deployment: DeployDATAExternal
+        displayName: deploy Data External
+        pool:
+          vmImage: "ubuntu-latest"
+        environment: "data"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: AzureCLI@1
+                  displayName: Get service principal credentials
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Data"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      # Define environment variables
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+                      export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+
+                      # Set pipeline variables for use in subsequent tasks
+                      echo "##vso[task.setvariable variable=arm_subscription_id]${ARM_SUBSCRIPTION_ID}"
+                      echo "##vso[task.setvariable variable=arm_tenant_id]${ARM_TENANT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_id]${ARM_CLIENT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_secret]${ARM_CLIENT_SECRET}"
+                      
+                - task: AzureCLI@1
+                  displayName: Connect to AKS External
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Data"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: false
+                    inlineScript: |
+                      az aks get-credentials \
+                        --name ofg-data-e-aks \
+                        --resource-group  ofg-data-e-aks-rg \
+                        --admin --overwrite-existing
+
+                - task: AzureCLI@1
+                  displayName: Deploy Cluster Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Data"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/data/env-ext.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-data-e-aks-admin
+                      kustomize build ./cluster/ | envsubst |  kubectl apply -f -
+                      kubectl apply -f ./cluster/letsencrypt/namespace.yaml
+                      kubectl apply -f ./cluster/letsencrypt/deployment.yaml
+                      sleep 120
+                      kubectl apply -f ./cluster/letsencrypt/cluster_issuer.yaml                     
+                - task: AzureCLI@1
+                  displayName: Deploy RER Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-Data"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/data/env-ext.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-data-e-aks-admin
+                      kustomize build ./services/external-web/ | envsubst |  kubectl apply -f -
+  
+  - stage: QA
+    jobs:
+      - deployment: DeployQACoreInternal
+        displayName: deploy QA Core Internal
+        pool:
+          vmImage: "ubuntu-latest"
+        environment: "qa"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: AzureCLI@1
+                  displayName: Get service principal credentials
+                  inputs:
+                    azureSubscription: "Ofgem-RER-QA"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      # Define environment variables
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+                      export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+
+                      # Set pipeline variables for use in subsequent tasks
+                      echo "##vso[task.setvariable variable=arm_subscription_id]${ARM_SUBSCRIPTION_ID}"
+                      echo "##vso[task.setvariable variable=arm_tenant_id]${ARM_TENANT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_id]${ARM_CLIENT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_secret]${ARM_CLIENT_SECRET}"
+                - task: AzureCLI@1
+                  displayName: Connect to AKS Internal
+                  inputs:
+                    azureSubscription: "Ofgem-RER-QA"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: false
+                    inlineScript: |
+                      az aks get-credentials \
+                        --name ofg-qa-i-aks \
+                        --resource-group  ofg-qa-i-aks-rg \
+                        --admin --overwrite-existing
+                - task: AzureCLI@1
+                  displayName: Deploy Cluster Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-QA"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/qa/env-int.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-qa-i-aks-admin
+                      kustomize build ./cluster/ | envsubst |  kubectl apply -f -
+                      kubectl apply -f ./cluster/letsencrypt/namespace.yaml
+                      kubectl apply -f ./cluster/letsencrypt/deployment.yaml
+                      sleep 120
+                      kubectl apply -f ./cluster/letsencrypt/cluster_issuer.yaml                     
+                - task: AzureCLI@1
+                  displayName: Deploy RER Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-QA"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/qa/env-int.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-qa-i-aks-admin
+                      kustomize build ./services/ | envsubst |  kubectl apply -f -
+
+      - deployment: DeployQACoreExternal
+        displayName: deploy QA Core External
+        pool:
+          vmImage: "ubuntu-latest"
+        environment: "qa"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: AzureCLI@1
+                  displayName: Get service principal credentials
+                  inputs:
+                    azureSubscription: "Ofgem-RER-QA"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      # Define environment variables
+                      export ARM_SUBSCRIPTION_ID="ff0c0724-8ceb-4e37-932d-099a625d1c04" #$(az account show --query id -o tsv)
+                      export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+
+                      # Set pipeline variables for use in subsequent tasks
+                      echo "##vso[task.setvariable variable=arm_subscription_id]${ARM_SUBSCRIPTION_ID}"
+                      echo "##vso[task.setvariable variable=arm_tenant_id]${ARM_TENANT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_id]${ARM_CLIENT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_secret]${ARM_CLIENT_SECRET}"
+                - task: AzureCLI@1
+                  displayName: Connect to AKS External
+                  inputs:
+                    azureSubscription: "Ofgem-RER-QA"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: false
+                    inlineScript: |
+                      az aks get-credentials \
+                        --name ofg-qa-e-aks \
+                        --resource-group  ofg-qa-e-aks-rg \
+                        --admin --overwrite-existing
+
+                - task: AzureCLI@1
+                  displayName: Deploy Cluster Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-QA"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/qa/env-ext.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-qa-e-aks-admin
+                      kustomize build ./cluster/ | envsubst |  kubectl apply -f -
+                      kubectl apply -f ./cluster/letsencrypt/namespace.yaml
+                      kubectl apply -f ./cluster/letsencrypt/deployment.yaml
+                      sleep 120
+                      kubectl apply -f ./cluster/letsencrypt/cluster_issuer.yaml                     
+                - task: AzureCLI@1
+                  displayName: Deploy RER Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-QA"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/qa/env-ext.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-qa-e-aks-admin
+                      kustomize build ./services/external-web/ | envsubst |  kubectl apply -f -
+  - stage: UAT
+    jobs:
+      - deployment: DeployUATInternal
+        displayName: deploy UAT Internal
+        pool:
+          vmImage: "ubuntu-latest"
+        environment: "uat"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: AzureCLI@1
+                  displayName: Get service principal credentials
+                  inputs:
+                    azureSubscription: "Ofgem-RER-UAT"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      # Define environment variables
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+                      export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+
+                      # Set pipeline variables for use in subsequent tasks
+                      echo "##vso[task.setvariable variable=arm_subscription_id]${ARM_SUBSCRIPTION_ID}"
+                      echo "##vso[task.setvariable variable=arm_tenant_id]${ARM_TENANT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_id]${ARM_CLIENT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_secret]${ARM_CLIENT_SECRET}"
+                - task: AzureCLI@1
+                  displayName: Connect to AKS Internal
+                  inputs:
+                    azureSubscription: "Ofgem-RER-UAT"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: false
+                    inlineScript: |
+                      az aks get-credentials \
+                        --name ofg-uat-i-aks \
+                        --resource-group  ofg-uat-i-aks-rg \
+                        --admin --overwrite-existing
+                - task: AzureCLI@1
+                  displayName: Deploy Cluster Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-UAT"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/uat/env-int.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-uat-i-aks-admin
+                      kustomize build ./cluster/ | envsubst |  kubectl apply -f -
+                      kubectl apply -f ./cluster/letsencrypt/namespace.yaml
+                      kubectl apply -f ./cluster/letsencrypt/deployment.yaml
+                      sleep 120
+                      kubectl apply -f ./cluster/letsencrypt/cluster_issuer.yaml                     
+                - task: AzureCLI@1
+                  displayName: Deploy RER Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-UAT"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/uat/env-int.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-uat-i-aks-admin
+                      kustomize build ./services/ | envsubst |  kubectl apply -f -
+
+      - deployment: DeployUATExternal
+        displayName: deploy UAT External
+        pool:
+          vmImage: "ubuntu-latest"
+        environment: "uat"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+
+                - task: AzureCLI@1
+                  displayName: Get service principal credentials
+                  inputs:
+                    azureSubscription: "Ofgem-RER-UAT"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      # Define environment variables
+                      export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+                      export ARM_TENANT_ID=$(az account show --query tenantId -o tsv)
+                      export ARM_CLIENT_ID=$servicePrincipalId
+                      export ARM_CLIENT_SECRET=$servicePrincipalKey
+
+                      # Set pipeline variables for use in subsequent tasks
+                      echo "##vso[task.setvariable variable=arm_subscription_id]${ARM_SUBSCRIPTION_ID}"
+                      echo "##vso[task.setvariable variable=arm_tenant_id]${ARM_TENANT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_id]${ARM_CLIENT_ID}"
+                      echo "##vso[task.setvariable variable=arm_client_secret]${ARM_CLIENT_SECRET}"
+                - task: AzureCLI@1
+                  displayName: Connect to AKS External
+                  inputs:
+                    azureSubscription: "Ofgem-RER-UAT"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: false
+                    inlineScript: |
+                      az aks get-credentials \
+                        --name ofg-uat-e-aks \
+                        --resource-group  ofg-uat-e-aks-rg \
+                        --admin --overwrite-existing
+
+                - task: AzureCLI@1
+                  displayName: Deploy Cluster Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-UAT"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/uat/env-ext.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-uat-e-aks-admin
+                      kustomize build ./cluster/ | envsubst |  kubectl apply -f -
+                      kubectl apply -f ./cluster/letsencrypt/namespace.yaml
+                      kubectl apply -f ./cluster/letsencrypt/deployment.yaml
+                      sleep 120
+                      kubectl apply -f ./cluster/letsencrypt/cluster_issuer.yaml                     
+                - task: AzureCLI@1
+                  displayName: Deploy RER Services
+                  inputs:
+                    azureSubscription: "Ofgem-RER-UAT"
+                    scriptLocation: inlineScript
+                    addSpnToEnvironment: true
+                    failOnStandardError: true
+                    inlineScript: |
+                      source ./environments/uat/env-ext.sh
+                      source ./environments/env-all.sh
+                      kubectl config use-context ofg-uat-e-aks-admin
+                      kustomize build ./services/external-web/ | envsubst |  kubectl apply -f -

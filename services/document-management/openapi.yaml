@@ -1,0 +1,47 @@
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  creationTimestamp: null
+  name: document-management-service.ofg-dev-i-document-management.svc.cluster.local
+  namespace: ofg-dev-i-document-management
+spec:
+  routes:
+  - condition:
+      method: DELETE
+      pathRegex: /Document
+    name: DELETE /Document
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Document
+    name: GET /Document
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Document
+    name: POST /Document
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400

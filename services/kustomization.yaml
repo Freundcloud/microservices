@@ -1,0 +1,7 @@
+bases:
+  - ./adb2c-user-service/
+  - ./address-lookup/
+  - ./companies-house/
+  - ./document-management/
+  - ./internal-web/
+  - ./rer-core/

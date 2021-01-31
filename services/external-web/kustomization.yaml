@@ -1,0 +1,8 @@
+namespace: ofg-$ENV-$FACING-external-web-app
+resources:
+  - namespace.yaml
+  - service.yaml
+  - azureidentity.yaml
+  - azureidentitybinding.yaml
+  - ingress.yaml
+  - deployment.yaml

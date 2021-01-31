@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: rer-core-services
+  namespace: ofg-$ENV-$FACING-rer-core
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header l5d-dst-override rer-core-services.ofg-$ENV-$FACING-rer-core.svc.cluster.local:80;
+      grpc_set_header l5d-dst-override rer-core-services.ofg-$ENV-$FACING-rer-core.svc.cluster.local:80;
+    cert-manager.io/cluster-issuer: letsencrypt
+    cert-manager.io/acme-challenge-type: http01
+spec:
+  tls:
+    - hosts:
+        - rer-core.$ENV.rercloud.co.uk
+      secretName: rer-core-tls-cert
+  rules:
+    - host: rer-core.$ENV.rercloud.co.uk
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: rer-core-services
+              servicePort: 80

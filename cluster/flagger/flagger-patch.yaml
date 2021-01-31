@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flagger
+spec:
+  template:
+    spec:
+      containers:
+        - name: flagger
+          args:
+            - -mesh-provider=linkerd
+            - -log-level=info
+            - -metrics-server=http://linkerd-prometheus:9090
+            - -slack-user=flagger
+            - -slack-channel=rer-flagger
+            - -slack-url=https://hooks.slack.com/services/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
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: flagger
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: flagger
+subjects:
+  - kind: ServiceAccount
+    name: flagger
+    namespace: linkerd

@@ -1,0 +1,7 @@
+{
+    "tenantId": 1e432686-1607-4e46-a624-f57fd6fcf3f3,
+    "subscriptionId": $ARM_SUBSCRIPTION_ID,
+    "resourceGroup": $RESOURCE_GROUP,
+    "aadClientId": $ARM_CLIENT_ID,
+    "aadClientSecret": $ARM_CLIENT_SECRET
+  }

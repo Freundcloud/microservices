@@ -1,0 +1,8 @@
+namespace: externaldns-system
+resources:
+  - namespace.yaml
+  - external_dns.yaml
+secretGenerator:
+  - name: azure-config-file
+    files:
+      - azure.json

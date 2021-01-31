@@ -1,0 +1,4 @@
+namespace: ingress-controller
+resources:
+  - namespace.yaml
+  - nginx.yaml

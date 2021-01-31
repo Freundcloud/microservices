@@ -1,0 +1,1960 @@
+apiVersion: linkerd.io/v1alpha2
+kind: ServiceProfile
+metadata:
+  creationTimestamp: null
+  name: rer-core-service.ofg-dev-i-rer-core.svc.cluster.local
+  namespace: ofg-dev-i-rer-core
+spec:
+  routes:
+  - condition:
+      method: POST
+      pathRegex: /Accreditation/[^/]*/Approve
+    name: POST /Accreditation/{accreditationReference}/Approve
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 404
+          min: 404
+    - condition:
+        status:
+          max: 409
+          min: 409
+  - condition:
+      method: POST
+      pathRegex: /Accreditation/[^/]*/Refuse
+    name: POST /Accreditation/{accreditationReference}/Refuse
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 404
+          min: 404
+    - condition:
+        status:
+          max: 409
+          min: 409
+  - condition:
+      method: POST
+      pathRegex: /Compliance/ObligationLevel
+    name: POST /Compliance/ObligationLevel
+    responseClasses:
+    - condition:
+        status:
+          max: 201
+          min: 201
+    - condition:
+        status:
+          max: 400
+          min: 400
+  - condition:
+      method: PUT
+      pathRegex: /Compliance/ObligationLevel
+    name: PUT /Compliance/ObligationLevel
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Compliance/ObligationLevel/[^/]*/[^/]*
+    name: GET /Compliance/ObligationLevel/{compliancePeriodId}/{region}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Compliance/ObligationLevels
+    name: GET /Compliance/ObligationLevels
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+  - condition:
+      method: GET
+      pathRegex: /DailyTasks
+    name: GET /DailyTasks
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+  - condition:
+      method: GET
+      pathRegex: /NewAccreditation/[^/]*
+    name: GET /NewAccreditation/{accreditationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/Address
+    name: PUT /NewAccreditation/{accreditationReference}/Address
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/CapacityLine
+    name: PUT /NewAccreditation/{accreditationReference}/CapacityLine
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/CoreDetails
+    name: PUT /NewAccreditation/{accreditationReference}/CoreDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/MeteringDetails
+    name: PUT /NewAccreditation/{accreditationReference}/MeteringDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/SendToApplicant
+    name: PUT /NewAccreditation/{accreditationReference}/SendToApplicant
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/StartReview
+    name: PUT /NewAccreditation/{accreditationReference}/StartReview
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/StationTechnicalDetails
+    name: PUT /NewAccreditation/{accreditationReference}/StationTechnicalDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/SubmitForReview
+    name: PUT /NewAccreditation/{accreditationReference}/SubmitForReview
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /NewAccreditation/[^/]*/SupportingDocument
+    name: POST /NewAccreditation/{accreditationReference}/SupportingDocument
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/TechnicalInformation
+    name: PUT /NewAccreditation/{accreditationReference}/TechnicalInformation
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /NewAccreditation/[^/]*/Technology
+    name: PUT /NewAccreditation/{accreditationReference}/Technology
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Organisation/CommercialOrganisation
+    name: POST /Organisation/CommercialOrganisation
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+  - condition:
+      method: GET
+      pathRegex: /Organisation/LetterOfAuthorisation/[^/]*
+    name: GET /Organisation/LetterOfAuthorisation/{filePath}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Organisation/NonCommercialGenerator
+    name: POST /Organisation/NonCommercialGenerator
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+  - condition:
+      method: POST
+      pathRegex: /Organisation/PrivateGenerator
+    name: POST /Organisation/PrivateGenerator
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/CancelNominatedResponsiblePerson
+    name: PUT /Organisation/{organisationReference}/CancelNominatedResponsiblePerson
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Organisation/[^/]*/Licence
+    name: POST /Organisation/{organisationReference}/Licence
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: DELETE
+      pathRegex: /Organisation/[^/]*/Licence/[^/]*
+    name: DELETE /Organisation/{organisationReference}/Licence/{licenceId}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Licence/[^/]*
+    name: GET /Organisation/{organisationReference}/Licence/{licenceId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/Licence/[^/]*
+    name: PUT /Organisation/{organisationReference}/Licence/{licenceId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Licences
+    name: GET /Organisation/{organisationReference}/Licences
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Organisation/[^/]*/NewAccreditation
+    name: POST /Organisation/{organisationReference}/NewAccreditation
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Organisation/[^/]*/NominateResponsiblePerson
+    name: POST /Organisation/{organisationReference}/NominateResponsiblePerson
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Rego/Transfer
+    name: GET /Organisation/{organisationReference}/Rego/Transfer
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Regos
+    name: GET /Organisation/{organisationReference}/Regos
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Regos/Search
+    name: GET /Organisation/{organisationReference}/Regos/Search
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Organisation/[^/]*/Regos/Transfer
+    name: POST /Organisation/{organisationReference}/Regos/Transfer
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Rocs
+    name: GET /Organisation/{organisationReference}/Rocs
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Rocs/Search
+    name: GET /Organisation/{organisationReference}/Rocs/Search
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Rocs/Transfer
+    name: GET /Organisation/{organisationReference}/Rocs/Transfer
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Organisation/[^/]*/Rocs/Transfer
+    name: POST /Organisation/{organisationReference}/Rocs/Transfer
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/SendToApplicant
+    name: PUT /Organisation/{organisationReference}/SendToApplicant
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/StationDeclaration/Search
+    name: GET /Organisation/{organisationReference}/StationDeclaration/Search
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/StationDeclaration/Sign
+    name: PUT /Organisation/{organisationReference}/StationDeclaration/Sign
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/StationDeclaration/TemplateAndStations
+    name: GET /Organisation/{organisationReference}/StationDeclaration/TemplateAndStations
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Stations/Search
+    name: GET /Organisation/{organisationReference}/Stations/Search
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/SubmitForReview
+    name: PUT /Organisation/{organisationReference}/SubmitForReview
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/UpdateCommercialOrganisationDetails
+    name: PUT /Organisation/{organisationReference}/UpdateCommercialOrganisationDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/UpdateNonCommercialOrganisationDetails
+    name: PUT /Organisation/{organisationReference}/UpdateNonCommercialOrganisationDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/UpdatePrivateGeneratorOrganisationDetails
+    name: PUT /Organisation/{organisationReference}/UpdatePrivateGeneratorOrganisationDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/User
+    name: PUT /Organisation/{organisationReference}/User
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Organisation/[^/]*/User/[^/]*/ExternalPermissions
+    name: PUT /Organisation/{organisationReference}/User/{azureId}/ExternalPermissions
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: DELETE
+      pathRegex: /Organisation/[^/]*/User/[^/]*
+    name: DELETE /Organisation/{organisationReference}/User/{userId}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*
+    name: GET /Organisation/{reference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Organisation/[^/]*/Public
+    name: GET /Organisation/{reference}/Public
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /OrganisationDeclaration/Template/[^/]*
+    name: GET /OrganisationDeclaration/Template/{declarationTemplateId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /OrganisationDeclaration/[^/]*
+    name: GET /OrganisationDeclaration/{declarationId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /OrganisationDeclaration/[^/]*
+    name: PUT /OrganisationDeclaration/{declarationId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /OutputData/Organisation/[^/]*
+    name: GET /OutputData/Organisation/{organisationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /OutputData/[^/]*
+    name: GET /OutputData/{outputDataSubmissionReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /OutputData/[^/]*
+    name: PUT /OutputData/{outputDataSubmissionReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /OutputData/[^/]*/Approve
+    name: PUT /OutputData/{outputDataSubmissionReference}/Approve
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /OutputData/[^/]*/Decline
+    name: PUT /OutputData/{outputDataSubmissionReference}/Decline
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 403
+          min: 403
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /OutputData/[^/]*/Submit
+    name: PUT /OutputData/{outputDataSubmissionReference}/Submit
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /OutputData/[^/]*/SupportingDocument
+    name: PUT /OutputData/{outputDataSubmissionReference}/SupportingDocument
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/Accreditation/[^/]*
+    name: GET /QueryResponse/Accreditation/{accreditationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /QueryResponse/Accreditation/[^/]*
+    name: POST /QueryResponse/Accreditation/{accreditationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/Address/[^/]*
+    name: GET /QueryResponse/Address/{addressId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /QueryResponse/Address/[^/]*
+    name: POST /QueryResponse/Address/{addressId}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/CapacityLine/[^/]*
+    name: GET /QueryResponse/CapacityLine/{capacityLineId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /QueryResponse/CapacityLine/[^/]*
+    name: POST /QueryResponse/CapacityLine/{capacityLineId}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/Meter/[^/]*
+    name: GET /QueryResponse/Meter/{meterId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /QueryResponse/Meter/[^/]*
+    name: POST /QueryResponse/Meter/{meterId}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/MeterCollectionSupportingDocument/[^/]*
+    name: GET /QueryResponse/MeterCollectionSupportingDocument/{supportingDocumentId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/OrganisationDetails/[^/]*
+    name: GET /QueryResponse/OrganisationDetails/{organisationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /QueryResponse/OrganisationDetails/[^/]*
+    name: POST /QueryResponse/OrganisationDetails/{organisationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/OrganisationResponsiblePersonDetails/[^/]*
+    name: GET /QueryResponse/OrganisationResponsiblePersonDetails/{organisationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /QueryResponse/OrganisationResponsiblePersonDetails/[^/]*
+    name: POST /QueryResponse/OrganisationResponsiblePersonDetails/{organisationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/Station/[^/]*
+    name: GET /QueryResponse/Station/{stationId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /QueryResponse/Station/[^/]*
+    name: POST /QueryResponse/Station/{stationId}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/StationSupportingDocument/[^/]*
+    name: GET /QueryResponse/StationSupportingDocument/{supportingDocumentId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/StationTechnicalDetails/[^/]*
+    name: GET /QueryResponse/StationTechnicalDetails/{stationTechnicalDetailsId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /QueryResponse/StationTechnicalDetails/[^/]*
+    name: POST /QueryResponse/StationTechnicalDetails/{stationTechnicalDetailsId}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /QueryResponse/StationTechnicalDetailsSupportingDocument/[^/]*
+    name: GET /QueryResponse/StationTechnicalDetailsSupportingDocument/{supportingDocumentId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /QueryResponse/SupportingDocument/[^/]*
+    name: POST /QueryResponse/SupportingDocument/{supportingDocumentId}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Stations/[^/]*
+    name: GET /Stations/{stationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/BatteryStorage
+    name: PUT /Stations/{stationReference}/BatteryStorage
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/BatteryStorageMetering
+    name: PUT /Stations/{stationReference}/BatteryStorageMetering
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Stations/[^/]*/CapacityLine
+    name: POST /Stations/{stationReference}/CapacityLine
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/CapacityLine/[^/]*
+    name: PUT /Stations/{stationReference}/CapacityLine/{capacityLineReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Stations/[^/]*/CheckState
+    name: GET /Stations/{stationReference}/CheckState
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/EligibleMeteringDetails/[^/]*
+    name: PUT /Stations/{stationReference}/EligibleMeteringDetails/{meterType}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/ExportConnectionCapacityDetails
+    name: PUT /Stations/{stationReference}/ExportConnectionCapacityDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/ExportLayoutDetails
+    name: PUT /Stations/{stationReference}/ExportLayoutDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/GeneralStationLayout
+    name: PUT /Stations/{stationReference}/GeneralStationLayout
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/ImportElectricityMetering
+    name: PUT /Stations/{stationReference}/ImportElectricityMetering
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/Location
+    name: PUT /Stations/{stationReference}/Location
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/NILayoutDetails
+    name: PUT /Stations/{stationReference}/NILayoutDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/OtherLayoutDetails
+    name: PUT /Stations/{stationReference}/OtherLayoutDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/OtherTechnicalDetails
+    name: PUT /Stations/{stationReference}/OtherTechnicalDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/ParasiticConsumptionMetering
+    name: PUT /Stations/{stationReference}/ParasiticConsumptionMetering
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/RegoMeteringDetails
+    name: PUT /Stations/{stationReference}/RegoMeteringDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/RegoTechnicalInformation
+    name: PUT /Stations/{stationReference}/RegoTechnicalInformation
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/RegoTechnology
+    name: PUT /Stations/{stationReference}/RegoTechnology
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/SchemeInformation
+    name: PUT /Stations/{stationReference}/SchemeInformation
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StandbyGeneratorDetails
+    name: PUT /Stations/{stationReference}/StandbyGeneratorDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StandbyGeneratorMetering
+    name: PUT /Stations/{stationReference}/StandbyGeneratorMetering
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StationFuelledTechnologyDetails
+    name: PUT /Stations/{stationReference}/StationFuelledTechnologyDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StationHydroTechnologyDetailsCivilWorks
+    name: PUT /Stations/{stationReference}/StationHydroTechnologyDetailsCivilWorks
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StationHydroTechnologyDetailsMicro
+    name: PUT /Stations/{stationReference}/StationHydroTechnologyDetailsMicro
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StationLandfillOrSewageGasTechnologyDetails
+    name: PUT /Stations/{stationReference}/StationLandfillOrSewageGasTechnologyDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StationMainComponentsDetails
+    name: PUT /Stations/{stationReference}/StationMainComponentsDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StationMicroPvOrWindTechnologyDetails
+    name: PUT /Stations/{stationReference}/StationMicroPvOrWindTechnologyDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StationOffShoreWindTechnologyDetails
+    name: PUT /Stations/{stationReference}/StationOffShoreWindTechnologyDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /Stations/[^/]*/StationPVTechnologyDetails
+    name: PUT /Stations/{stationReference}/StationPVTechnologyDetails
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: POST
+      pathRegex: /Stations/[^/]*/SupportingDocument
+    name: POST /Stations/{stationReference}/SupportingDocument
+    responseClasses:
+    - condition:
+        status:
+          max: 201
+          min: 201
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /SupportingDocument/MessageDocument/[^/]*
+    name: GET /SupportingDocument/MessageDocument/{filePath}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /SupportingDocument/SoftDelete/[^/]*
+    name: PUT /SupportingDocument/SoftDelete/{filePath}
+    responseClasses:
+    - condition:
+        status:
+          max: 204
+          min: 204
+    - condition:
+        status:
+          max: 400
+          min: 400
+  - condition:
+      method: GET
+      pathRegex: /SupportingDocument/[^/]*
+    name: GET /SupportingDocument/{filePath}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /Template/[^/]*
+    name: GET /Template/{templateType}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /User
+    name: GET /User
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /User
+    name: PUT /User
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 201
+          min: 201
+    - condition:
+        status:
+          max: 400
+          min: 400
+  - condition:
+      method: POST
+      pathRegex: /User/AcceptInvitation/[^/]*
+    name: POST /User/AcceptInvitation/{organisationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /User/Invited/[^/]*
+    name: GET /User/Invited/{organisationReference}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /User/Organisations/Search
+    name: GET /User/Organisations/Search
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /User/Search
+    name: GET /User/Search
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /User/[^/]*
+    name: GET /User/{id}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /VolumeData/Search
+    name: GET /VolumeData/Search
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: GET
+      pathRegex: /VolumeData/[^/]*
+    name: GET /VolumeData/{volumeDataSubmissionId}
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 404
+          min: 404
+  - condition:
+      method: PUT
+      pathRegex: /VolumeData/[^/]*/Submit
+    name: PUT /VolumeData/{volumeDataSubmissionId}/Submit
+    responseClasses:
+    - condition:
+        status:
+          max: 200
+          min: 200
+    - condition:
+        status:
+          max: 400
+          min: 400
+    - condition:
+        status:
+          max: 404
+          min: 404

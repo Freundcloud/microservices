@@ -1,0 +1,99 @@
+parameters:
+  testDockerFile: ''
+  testDockerFileArgs: ''
+  integrationTestsUseKeyVault: false
+  serviceDockerFile: ''
+  serviceDockerFileArgs: ''
+  serviceName: ''
+  aksServiceName: ''
+  serviceImageTag: ''
+  kubernetesFile: ''
+  devAppInsightsKey: ''
+  qatAppInsightsKey: ''
+  uatAppInsightsKey: ''
+  dbMigrationprojectName: ''
+  dbMigrationStartupProjectName: ''
+  serviceFacing: ''
+  aksNameSpace: ''
+  projectBaseDir: ''
+  SonarProjectName: ''
+
+stages:
+  - stage: build
+    jobs:
+      # - template: sonaranalyze-job.yml
+      #   parameters:
+      #     serviceName: '${{ parameters.serviceName }}'
+      #     SonarProjectName:  '${{ parameters.SonarProjectName }}'
+
+      - template: tests-job.yml
+        parameters:
+          testDockerFile: '${{ parameters.testDockerFile }}'
+          testDockerFileArgs: '${{ parameters.testDockerFileArgs }}'
+          integrationTestsUseKeyVault: '${{ parameters.integrationTestsUseKeyVault }}'
+
+      - template: build-and-push-image-job.yml
+        parameters:
+          dependsOn: 'Tests'
+          serviceDockerFile: '${{ parameters.serviceDockerFile }}'
+          serviceDockerFileArgs: '${{ parameters.serviceDockerFileArgs }}'
+          serviceImageTag: '${{ parameters.serviceImageTag }}'
+          projectBaseDir: '${{ parameters.projectBaseDir }}'
+
+      - template: publish-db-migrations-job.yml
+        parameters:
+          dependsOn: 'Tests'
+          dbMigrationprojectName: '${{ parameters.dbMigrationprojectName }}'
+          dbMigrationStartupProjectName: '${{ parameters.dbMigrationStartupProjectName }}'
+
+  - stage: Dev
+    dependsOn: build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
+    jobs:
+      - template: deploy_aks_all_dev.yml
+        parameters:
+          environmentName: 'dev'
+          serviceName: '${{ parameters.serviceName }}'
+          aksServiceName: '${{ parameters.aksServiceName }}'
+          dbMigrationprojectName: '${{ parameters.dbMigrationprojectName }}'
+          serviceFacing: '${{ parameters.serviceFacing }}'
+          aksNameSpace: '${{ parameters.aksNameSpace }}'
+
+  - stage: Data
+    dependsOn: Dev
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
+    jobs:
+      - template: deploy_aks_all_data.yml
+        parameters:
+          environmentName: 'data'
+          serviceName: '${{ parameters.serviceName }}'
+          aksServiceName: '${{ parameters.aksServiceName }}'
+          dbMigrationprojectName: '${{ parameters.dbMigrationprojectName }}'
+          serviceFacing: '${{ parameters.serviceFacing }}'
+          aksNameSpace: '${{ parameters.aksNameSpace }}'
+
+  - stage: QA
+    dependsOn: Data
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
+    jobs:
+      - template: deploy_aks_all_qa.yml
+        parameters:
+          environmentName: 'qa'
+          serviceName: '${{ parameters.serviceName }}'
+          aksServiceName: '${{ parameters.aksServiceName }}'
+          dbMigrationprojectName: '${{ parameters.dbMigrationprojectName }}'
+          serviceFacing: '${{ parameters.serviceFacing }}'
+          aksNameSpace: '${{ parameters.aksNameSpace }}'
+
+  - stage: UAT
+    dependsOn: QA
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
+    jobs:
+      - template: deploy_aks_all_uat.yml
+        parameters:
+          environmentName: 'uat'
+          serviceName: '${{ parameters.serviceName }}'
+          aksServiceName: '${{ parameters.aksServiceName }}'
+          dbMigrationprojectName: '${{ parameters.dbMigrationprojectName }}'
+          serviceFacing: '${{ parameters.serviceFacing }}'
+          aksNameSpace: '${{ parameters.aksNameSpace }}'

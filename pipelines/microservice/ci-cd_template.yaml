@@ -1,0 +1,26 @@
+trigger:
+- dev
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: infrastructure-microservices-iac
+      ref: refs/heads/master
+
+stages:
+- template: microservice/ci-cd-stages.yml@templates
+  parameters:
+   testDockerFile: 'docker-compose-tests.yml'
+   testDockerFileArgs: 'KEY_VAULT_TOKEN=$(KEY_VAULT_TOKEN)'
+   integrationTestsUseKeyVault: true
+   serviceDockerFile: 'RerCoreServices/Dockerfile'
+   serviceDockerFileArgs: ''
+   serviceImageTag: '$(Build.BuildNumber)'
+   serviceName: 'rer-core'
+   aksServiceName: 'rer-core-services'
+   dbMigrationProjectName: 'RerCoreServices.DataAccess/RerCoreServices.DataAccess.csproj'
+   dbMigrationStartupProjectName: 'RerCoreServices/RerCoreServices.csproj'

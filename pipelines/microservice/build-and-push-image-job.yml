@@ -1,0 +1,43 @@
+parameters: 
+ dependsOn: ''
+ serviceDockerFile: ''
+ serviceDockerFileArgs: ''
+ serviceImageTag: ''
+ projectBaseDir: ''
+
+jobs:
+- job: Build 
+  displayName: 'Build and push image to container registry'
+  dependsOn: '${{ parameters.dependsOn }}'
+  condition: succeeded()
+  steps:
+  - task: Docker@1
+    displayName: Login to ACR
+    inputs:
+     command: 'login'
+     containerregistrytype: 'Azure Container Registry'
+     azureSubscriptionEndpoint: 'RER-InfraDev-Dev'
+     azureContainerRegistry: '{"loginServer":"commonrercr.azurecr.io", "id" : "/subscriptions/1dda66b2-2d18-40b8-98c4-6fb5471bdbea/resourceGroups/common-rer-rg/providers/Microsoft.ContainerRegistry/registries/commonrercr"}'
+
+  - task: Docker@2
+    displayName: Build Image
+    inputs:
+     command: 'build'
+     imageName: '$(Build.Repository.Name)'
+     repository: '$(Build.Repository.Name)'
+     Dockerfile: '${{ parameters.serviceDockerFile }}'
+     buildContext: '$(Build.Repository.LocalPath)'
+     arguments: '${{ parameters.serviceDockerFileArgs }}'
+     tags: |
+      latest
+      ${{ parameters.serviceImageTag }}
+
+  - task: Docker@2
+    displayName: Push Image
+    inputs:
+     command: 'push'
+     imageName: '$(Build.Repository.Name)'
+     repository: '$(Build.Repository.Name)'
+     tags: |
+      latest
+      ${{ parameters.serviceImageTag }}

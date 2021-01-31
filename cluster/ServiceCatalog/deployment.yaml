@@ -1,0 +1,1386 @@
+---
+# Source: catalog/templates/cleaner-job.yaml
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: clean-job-account
+  namespace: catalog
+  labels:
+    clean-job: "true"
+    app: catalog-catalog
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+---
+# Source: catalog/templates/serviceaccounts.yaml
+# The SA for the controller-manager
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "service-catalog-controller-manager"
+---
+# Source: catalog/templates/serviceaccounts.yaml
+# The SA for the webhook service
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "service-catalog-webhook"
+---
+# Source: catalog/templates/webhook-register.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: catalog-catalog-webhook-cert
+  labels:
+    app: catalog-catalog-webhook
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+type: Opaque
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURZekNDQWt1Z0F3SUJBZ0lRWU5uS3BKZXRDdDU1NnI2MndkcWJuekFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNJeElEQWVCZ05WQkFNVEYyTmhkR0ZzYjJjdFkyRjBZV3h2Clp5MTNaV0pvYjI5ck1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0NBUUVBOFZOcFF2YmoKVVNOQ1VBOElhSFI0NitmRktVbEJsWWRwbEhORDlER1hwQ0lIbjhoaWpsYkI2ekxYNGlySjAvTmxQQXZtR0dObApSN2JPT3l2ZVFPaW9idnlzVnFzRFZid29GV1hiMnowTEZNZEhmS0F6czl2L0FSMFh4NEFzZFhPYVFrVW9EUWh4CmJEWkNiaXgxUnlQcnNkdnV5Z3lTOW5FaVN2NHowUHdqeURiZXphNTBzNXp2WW94UHljZlg5QmtGNzhDeHkyNHoKdkUyNmZwWXZOa2pyR3NoeSswc2hublFxSHhSb1ZwalM1TEg0VWphekc1RXdjbTgrcDZRUnl2b1FKMDdPNEdzcgpLOUJYa1RGenpKeGdPbGwzVTN1SXZXUDE4cWpWSm1ZYVJIWmVDNnRqUVVGWm9aT2F0K2k4WDJUbXBReDIxcWNECnFMcXhON2djdm96L293SURBUUFCbzRHUk1JR09NQTRHQTFVZER3RUIvd1FFQXdJRm9EQWRCZ05WSFNVRUZqQVUKQmdnckJnRUZCUWNEQVFZSUt3WUJCUVVIQXdJd0RBWURWUjBUQVFIL0JBSXdBREJQQmdOVkhSRUVTREJHZ2g5agpZWFJoYkc5bkxXTmhkR0ZzYjJjdGQyVmlhRzl2YXk1allYUmhiRzluZ2lOallYUmhiRzluTFdOaGRHRnNiMmN0CmQyVmlhRzl2YXk1allYUmhiRzluTG5OMll6QU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFhWk5UdXZ2SGpUaDQKS09zdG1lSDlHSGhPeCtobk9QK2tqanVuVkl4TjgyQ00xeGUxUTJLa2hGVXllMXArYVcvbExmVXNaZncwRFNkUApqR1lEWEJYTzVZZDBNdTFtWmY4YnZIczJ5SG80QmlFeFJKYjRKUDZqSldCb3dJeE92bVdJUDFEL3BkNGtReE10ClNmdzV1QkwrQU8wSGkwL3dFRzFIUERzc1dzRkNTTmdTZzNjaUE0aGRQSmhpVzNIZDAxdFVIYlcvaGdnSFplWDYKQWVUOGt1MXp3cFJ1dk90VVdBbmNQdDl0UnRxSFgxaThwQUVjQkZJOEg5QWpaQkJlQUFRR2hkdlZXVktWTlYyMQp2bjlub1MvckVNR3ZKbGRPUXN6dEdGaWVYMXZSbGtrYTFCRjgyNkt1dHh6SXZMTGlORXc1NDArS0JrMXVWeVZhClhuZVd4T201dVE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBOFZOcFF2YmpVU05DVUE4SWFIUjQ2K2ZGS1VsQmxZZHBsSE5EOURHWHBDSUhuOGhpCmpsYkI2ekxYNGlySjAvTmxQQXZtR0dObFI3Yk9PeXZlUU9pb2J2eXNWcXNEVmJ3b0ZXWGIyejBMRk1kSGZLQXoKczl2L0FSMFh4NEFzZFhPYVFrVW9EUWh4YkRaQ2JpeDFSeVByc2R2dXlneVM5bkVpU3Y0ejBQd2p5RGJlemE1MApzNXp2WW94UHljZlg5QmtGNzhDeHkyNHp2RTI2ZnBZdk5ranJHc2h5KzBzaG5uUXFIeFJvVnBqUzVMSDRVamF6Ckc1RXdjbTgrcDZRUnl2b1FKMDdPNEdzcks5QlhrVEZ6ekp4Z09sbDNVM3VJdldQMThxalZKbVlhUkhaZUM2dGoKUVVGWm9aT2F0K2k4WDJUbXBReDIxcWNEcUxxeE43Z2N2b3ovb3dJREFRQUJBb0lCQUFkUkV4anZxVmExYmZaRgpibWpVVnpJMzFiZDV2QjVQZTdqL2dhanVzLzFLOXRZMldoNmNyTVozeFNuYlNFRS8yT3JvSlhMSjJMRkM3cC9HCnBiZHNGbWMvQys2WXdzSWZzVXRzeWl5c2ZpQ0VKanUyRTdzNVNWTDhVZE0vcEpsdkJ0ZEpoM3hWckRLdXRuYm0KckN1YkFETmxTcWtmbG5rWVZ3VFZEamNnM2VqZENmTitqcDZIdkYrMXJrVndLS3M2c0d1VDJWVUlIR041VTEwQwovWUFIcTZMWGVBZ2ZwQUkzVndFOFZiTWNwT2FWVXBIcFVlcTRFbkVZZWNEdUpWMVQyNUIybU9aYjh3Y2tGK2VOCmZ5aGd3Q3diY2xhY1U1d0YwMTc1OWVuRlhJRkVqVU5OU2NMNnVQdTNJRi9yS090V3JQamZ4ZHBtMzFhVCt6M3UKUlUyaG5nRUNnWUVBL0JPZFFsYzVicS8rVU13dDA5YnVqYVp2ZnY5SThad3VUS0VxR3dzRFVpdjZGNGJMaDc3SAo1a1lJanozZjVNQVJsTzRKYlhqT1ppcVJuVFRuTVlQbEhlTm4xeEJtaVFRdnNrb3hvd0NoTldrbHVDYjNPY08vCkNWejUwRnZLMCtCS0ZJT3hxeDhIVFllT1o1NnZZNCtnMW9ZWjVDelR6Rjl4cjFab0RYTFc5UUVDZ1lFQTlSVDEKLzFSNzNZZ28vVzNrZUdkMWY1aUVmTVA0d1ZkdVRIUGIxLy9VNkZ3TDlUWHM5NDZXMlh1WWF3TUlqTmRzazJyagovRkovSVRseVZCZnJteWpudlFPWGJiUldaVFA2OUczYlExbDAyUVlURis5OXRaMFZPRHpmTjloOFVZVGo4T2pyClNBSzZYOG9nZ0dVclV4UWFGaHI4aDAyYzRVc3RNNTlwSnlTdkFLTUNnWUFOeitsVEJFS0NYU1JiT3dUYjBiQWEKbE44UkgxM1kxMHoySi9LTnJzbk15OW9WUmU2TERwb1hkUWp0Q0YvblFkcjB4U0pCSEZoNjRxUTk3L01uRkdvTwpmREpwWjEybTdsTEt1eVFESVhxejJZSVdtQlA5MTByMWNXSEMxL1RDTFUwQjJNRjRkZWZKaUw3MTBJMGRzSFlJCnF5cHFCVWJKc1FVaXJXSmdNa1d6QVFLQmdRRE9oT2c2VFQzSFVxcC95KzkvU21jbnF5VFJZZTRuTmY2YTYvSncKVklOYmZkMFJ0MnhFdTJJQVIvY0xEZFpSb0dJODR4RFVtY3ZJK25pTnhrNWlSQmpySExDbzRCTUJXc2o0MmUydgpGaDJ4bHozVnFKajh4aTZRWWpNVEF4alhOSzFEWDNLTURzaHdXWW9EeDd5M1dEUVhOb3hmazVaRC9xNUxWdVFyCitPeURFd0tCZ1FDaDRvV0duMW5wdGJxYVB0Rjl1LzJDM2pQQWpacDVQUzRLc1NGWm9oSEFSaGdySS8wY3BuOWMKcnF5TXdLVFM5WnVFMm9EZ2xhT0tiTEQxcXhFMzY1eU1JejczeXovaGRlRDJLbFdIL2VlVExTSkREcVZRN2M2aQpPVmRaTmxWT2tTcGVnWndGY2E5OXk3bzFqSy84Zzdtbm1lYlRXalRqOC9KdGFVL1dSOHhpTWc9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+---
+# Source: catalog/templates/crds/clusterservicebroker.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: clusterservicebrokers.servicecatalog.k8s.io
+  labels:
+    svcat: "true"
+spec:
+  group: servicecatalog.k8s.io
+  version: v1beta1
+  scope: Cluster
+  names:
+    plural: clusterservicebrokers
+    singular: clusterservicebroker
+    kind: ClusterServiceBroker
+    # categories is a list of grouped resources the custom resource belongs to.
+    categories:
+      - all
+      - svcat
+  additionalPrinterColumns:
+    - name: URL
+      type: string
+      JSONPath: .spec.url
+    - name: Status
+      type: string
+      JSONPath: .status.lastConditionState
+    - name: Age
+      type: date
+      JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
+---
+# Source: catalog/templates/crds/clusterserviceclass.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: clusterserviceclasses.servicecatalog.k8s.io
+  labels:
+    svcat: "true"
+spec:
+  group: servicecatalog.k8s.io
+  version: v1beta1
+  scope: Cluster
+  names:
+    plural: clusterserviceclasses
+    singular: clusterserviceclass
+    kind: ClusterServiceClass
+    # categories is a list of grouped resources the custom resource belongs to.
+    categories:
+      - all
+      - svcat
+  additionalPrinterColumns:
+    - name: External-Name
+      type: string
+      JSONPath: .spec.externalName
+    - name: Broker
+      type: string
+      JSONPath: .spec.clusterServiceBrokerName
+    - name: Age
+      type: date
+      JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
+---
+# Source: catalog/templates/crds/clusterserviceplan.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: clusterserviceplans.servicecatalog.k8s.io
+  labels:
+    svcat: "true"
+spec:
+  group: servicecatalog.k8s.io
+  version: v1beta1
+  scope: Cluster
+  names:
+    plural: clusterserviceplans
+    singular: clusterserviceplan
+    kind: ClusterServicePlan
+    # categories is a list of grouped resources the custom resource belongs to.
+    categories:
+      - all
+      - svcat
+  additionalPrinterColumns:
+    - name: External-Name
+      type: string
+      JSONPath: .spec.externalName
+    - name: Broker
+      type: string
+      JSONPath: .spec.clusterServiceBrokerName
+    - name: Class
+      type: string
+      JSONPath: .spec.clusterServiceClassRef.name
+    - name: Age
+      type: date
+      JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
+---
+# Source: catalog/templates/crds/servicebinding.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: servicebindings.servicecatalog.k8s.io
+  labels:
+    svcat: "true"
+spec:
+  group: servicecatalog.k8s.io
+  version: v1beta1
+  scope: Namespaced
+  names:
+    plural: servicebindings
+    singular: servicebinding
+    kind: ServiceBinding
+    # categories is a list of grouped resources the custom resource belongs to.
+    categories:
+      - all
+      - svcat
+  additionalPrinterColumns:
+    - name: Service-Instance
+      type: string
+      JSONPath: .spec.instanceRef.name
+    - name: Secret-Name
+      type: string
+      JSONPath: .spec.secretName
+    - name: Status
+      type: string
+      JSONPath: .status.lastConditionState
+    - name: Age
+      type: date
+      JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
+---
+# Source: catalog/templates/crds/servicebroker.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: servicebrokers.servicecatalog.k8s.io
+  labels:
+    svcat: "true"
+spec:
+  group: servicecatalog.k8s.io
+  version: v1beta1
+  scope: Namespaced
+  names:
+    plural: servicebrokers
+    singular: servicebroker
+    kind: ServiceBroker
+    # categories is a list of grouped resources the custom resource belongs to.
+    categories:
+      - all
+      - svcat
+  additionalPrinterColumns:
+    - name: URL
+      type: string
+      JSONPath: .spec.url
+    - name: Status
+      type: string
+      JSONPath: .status.lastConditionState
+    - name: Age
+      type: date
+      JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
+---
+# Source: catalog/templates/crds/serviceclass.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: serviceclasses.servicecatalog.k8s.io
+  labels:
+    svcat: "true"
+spec:
+  group: servicecatalog.k8s.io
+  version: v1beta1
+  scope: Namespaced
+  names:
+    plural: serviceclasses
+    singular: serviceclass
+    kind: ServiceClass
+    # categories is a list of grouped resources the custom resource belongs to.
+    categories:
+      - all
+      - svcat
+  additionalPrinterColumns:
+    - name: External-Name
+      type: string
+      JSONPath: .spec.externalName
+    - name: Broker
+      type: string
+      JSONPath: .spec.serviceBrokerName
+    - name: Age
+      type: date
+      JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
+---
+# Source: catalog/templates/crds/serviceinstance.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: serviceinstances.servicecatalog.k8s.io
+  labels:
+    svcat: "true"
+spec:
+  group: servicecatalog.k8s.io
+  version: v1beta1
+  scope: Namespaced
+  names:
+    plural: serviceinstances
+    singular: serviceinstance
+    kind: ServiceInstance
+    # categories is a list of grouped resources the custom resource belongs to.
+    categories:
+      - all
+      - svcat
+  additionalPrinterColumns:
+    - name: Class
+      type: string
+      JSONPath: .status.userSpecifiedClassName
+    - name: Plan
+      type: string
+      JSONPath: .status.userSpecifiedPlanName
+    - name: Status
+      type: string
+      JSONPath: .status.lastConditionState
+    - name: Age
+      type: date
+      JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
+---
+# Source: catalog/templates/crds/serviceplan.yaml
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: serviceplans.servicecatalog.k8s.io
+  labels:
+    svcat: "true"
+spec:
+  group: servicecatalog.k8s.io
+  version: v1beta1
+  scope: Namespaced
+  names:
+    plural: serviceplans
+    singular: serviceplan
+    kind: ServicePlan
+    # categories is a list of grouped resources the custom resource belongs to.
+    categories:
+      - all
+      - svcat
+  additionalPrinterColumns:
+    - name: External-Name
+      type: string
+      JSONPath: .spec.externalName
+    - name: Broker
+      type: string
+      JSONPath: .spec.serviceBrokerName
+    - name: Class
+      type: string
+      JSONPath: .spec.serviceClassRef.name
+    - name: Age
+      type: date
+      JSONPath: .metadata.creationTimestamp
+  subresources:
+    status: {}
+---
+# Source: catalog/templates/cleaner-job.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: clean-job-account
+  labels:
+    clean-job: "true"
+    app: catalog-catalog
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs:     ["get", "list", "update"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["mutatingwebhookconfigurations", "validatingwebhookconfigurations"]
+    verbs:     ["list", "delete"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs:     ["list", "delete"]
+  - apiGroups: ["servicecatalog.k8s.io"]
+    resources:
+    - "clusterserviceclasses"
+    - "clusterserviceplans"
+    - "clusterservicebrokers"
+    - "serviceinstances"
+    - "servicebindings"
+    - "serviceclasses"
+    - "serviceplans"
+    - "servicebrokers"
+    verbs: ["get", "list","update"]
+---
+# Source: catalog/templates/rbac.yaml
+### Controller-Manager ###
+
+# controller-manager role defines what access the service-catalog
+# controller-manager needs to manage the resources of the
+# service-catalog
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: "servicecatalog.k8s.io:controller-manager"
+rules:
+    - apiGroups: [""]
+      resources: ["events"]
+      verbs:     ["create","patch","update"]
+    # TODO: do not grant global access, limit to particular secrets referenced from servicebindings
+    - apiGroups: [""]
+      resources: ["secrets"]
+      verbs:     ["get","create","update","delete", "list", "watch"]
+    - apiGroups: [""]
+      resources: ["pods"]
+      verbs:     ["get","list","update", "patch", "watch", "delete", "initialize"]
+    - apiGroups: [""]
+      resources: ["namespaces"]
+      verbs:     ["get","list","watch"]
+    - apiGroups: ["apiextensions.k8s.io"]
+      resources: ["customresourcedefinitions"]
+      verbs:     ["list"]
+    # access to our service-catalog types
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["clusterserviceclasses"]
+      verbs:     ["get","list","watch","create","patch","update","delete"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["clusterserviceplans"]
+      verbs:     ["get","list","watch","create","patch","update","delete"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["clusterservicebrokers"]
+      verbs:     ["get","list","watch", "update"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["serviceinstances"]
+      verbs:     ["get","list","watch", "update"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["servicebindings"]
+      verbs:     ["get","list","watch", "update", "delete"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["clusterservicebrokers/status","clusterserviceclasses/status","clusterserviceplans/status","serviceinstances/status","servicebindings/status"]
+      verbs:     ["update"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["serviceclasses"]
+      verbs:     ["get","list","watch","create","patch","update","delete"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["serviceplans"]
+      verbs:     ["get","list","watch","create","patch","update","delete"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["servicebrokers"]
+      verbs:     ["get","list","watch", "update"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["servicebrokers/status","serviceclasses/status","serviceplans/status"]
+      verbs:     ["update"]
+---
+# Source: catalog/templates/rbac.yaml
+# This allows anyone to get the Service Catalog readiness probe
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: "servicecatalog.k8s.io:service-catalog-readiness"
+rules:
+    - nonResourceURLs:
+          - /healthz/ready
+      verbs:
+          - get
+---
+# Source: catalog/templates/rbac.yaml
+### Webhook ###
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: "servicecatalog.k8s.io:webhook"
+rules:
+    # access to our service-catalog types
+    - apiGroups: ["apiextensions.k8s.io"]
+      resources: ["customresourcedefinitions"]
+      verbs:     ["list"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["clusterserviceclasses"]
+      verbs:     ["get","list","watch"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["clusterserviceplans"]
+      verbs:     ["get","list","watch"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["clusterservicebrokers"]
+      verbs:     ["get","list","watch"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["serviceinstances","servicebindings"]
+      verbs:     ["get","list","watch"]
+    - apiGroups: ["authorization.k8s.io"]
+      resources: ["subjectaccessreviews"]
+      verbs:     ["get","list","create"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["serviceclasses"]
+      verbs:     ["get","list","watch"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["serviceplans"]
+      verbs:     ["get","list","watch"]
+    - apiGroups: ["servicecatalog.k8s.io"]
+      resources: ["servicebrokers"]
+      verbs:     ["get","list","watch"]
+---
+# Source: catalog/templates/cleaner-job.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: clean-job-account
+  labels:
+    clean-job: "true"
+    app: catalog-catalog
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+subjects:
+  - kind: ServiceAccount
+    name: clean-job-account
+    namespace: catalog
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: clean-job-account
+---
+# Source: catalog/templates/rbac.yaml
+# give the controller-manager service account access to whats defined in its role.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: "servicecatalog.k8s.io:controller-manager"
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: "servicecatalog.k8s.io:controller-manager"
+subjects:
+    - apiGroup: ""
+      kind: ServiceAccount
+      name: "service-catalog-controller-manager"
+      namespace: "catalog"
+---
+# Source: catalog/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: "servicecatalog.k8s.io:service-catalog-readiness"
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: "servicecatalog.k8s.io:service-catalog-readiness"
+subjects:
+    - apiGroup: rbac.authorization.k8s.io
+      kind: Group
+      name: system:unauthenticated
+    - apiGroup: rbac.authorization.k8s.io
+      kind: Group
+      name: system:authenticated
+---
+# Source: catalog/templates/rbac.yaml
+# give the webhook service account access to whats defined in its role.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: "servicecatalog.k8s.io:webhook"
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: "servicecatalog.k8s.io:webhook"
+subjects:
+    - apiGroup: ""
+      kind: ServiceAccount
+      name: "service-catalog-webhook"
+      namespace: "catalog"
+---
+# Source: catalog/templates/rbac.yaml
+# This gives create/update access to configmaps
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    name: "servicecatalog.k8s.io:cluster-info-configmap"
+    namespace: "catalog"
+rules:
+    - apiGroups:     [""]
+      resources:     ["configmaps"]
+      resourceNames: ["cluster-info"]
+      verbs:         ["get","create","list","watch","update"]
+---
+# Source: catalog/templates/rbac.yaml
+# This gives create/update access to configmaps in deployment namespace for leader election
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    name: "servicecatalog.k8s.io:leader-locking-controller-manager"
+    namespace: "catalog"
+rules:
+    - apiGroups: [""]
+      resources: ["configmaps"]
+      verbs:     ["create"]
+    - apiGroups:     [""]
+      resources:     ["configmaps"]
+      resourceNames: ["service-catalog-controller-manager"]
+      verbs:         ["get","update"]
+---
+# Source: catalog/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: service-catalog-controller-manager-cluster-info
+    namespace: "catalog"
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: "servicecatalog.k8s.io:cluster-info-configmap"
+subjects:
+    - apiGroup: ""
+      kind: ServiceAccount
+      name: "service-catalog-controller-manager"
+      namespace: "catalog"
+---
+# Source: catalog/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: service-catalog-controller-manager-leader-election
+    namespace: "catalog"
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: "servicecatalog.k8s.io:leader-locking-controller-manager"
+subjects:
+    - apiGroup: ""
+      kind: ServiceAccount
+      name: "service-catalog-controller-manager"
+      namespace: "catalog"
+---
+# Source: catalog/templates/controller-manager-service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: catalog-catalog-controller-manager
+  labels:
+    app: catalog-catalog-controller-manager
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+spec:
+  type: ClusterIP
+  selector:
+    app: catalog-catalog-controller-manager
+  ports:
+  - name: secure
+    protocol: TCP
+    port: 443
+    targetPort: 8444
+---
+# Source: catalog/templates/webhook-service.yaml
+kind: Service
+apiVersion: v1
+metadata:
+  name: catalog-catalog-webhook
+  labels:
+    app: catalog-catalog-webhook
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+spec:
+  type: NodePort
+  selector:
+    app: catalog-catalog-webhook
+  ports:
+  - name: secure
+    protocol: TCP
+    port: 443
+    targetPort: 8443
+    nodePort: 31443
+---
+# Source: catalog/templates/controller-manager-deployment.yaml
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: catalog-catalog-controller-manager
+  labels:
+    app: catalog-catalog
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  minReadySeconds: 1
+  selector:
+    matchLabels:
+      app: catalog-catalog-controller-manager
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "false"
+      
+      labels:
+        app: catalog-catalog-controller-manager
+        chart: "catalog-0.3.0"
+        release: "catalog"
+        heritage: "Helm"
+    spec:
+      serviceAccountName: "service-catalog-controller-manager"
+      imagePullSecrets:
+        []
+      containers:
+      - name: controller-manager
+        image: quay.io/kubernetes-service-catalog/service-catalog:v0.3.0
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        env:
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        args:
+        - controller-manager
+        - --secure-port
+        - "8444"
+        - "--cluster-id-configmap-namespace=catalog"
+        
+        - "--leader-elect=false"
+        
+        
+        - -v
+        - "2"
+        - --resync-interval
+        - 5m
+        - --broker-relist-interval
+        - 24h
+        - --operation-polling-maximum-backoff-duration
+        - 20m
+        - --osb-api-request-timeout
+        - 60s
+        - --feature-gates
+        - OriginatingIdentity=true
+        - --feature-gates
+        - ServicePlanDefaults=false
+        ports:
+        - containerPort: 8444
+---
+# Source: catalog/templates/webhook-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-catalog-webhook
+  labels:
+    app: catalog-catalog-webhook
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  minReadySeconds: 1
+  selector:
+    matchLabels:
+      app: catalog-catalog-webhook
+  template:
+    metadata:
+      labels:
+        app: catalog-catalog-webhook
+        chart: "catalog-0.3.0"
+        release: "catalog"
+        releaseRevision: "1"
+        heritage: "Helm"
+      
+    spec:
+      serviceAccountName: "service-catalog-webhook"
+      imagePullSecrets:
+        []
+      containers:
+      - name: svr
+        image: quay.io/kubernetes-service-catalog/service-catalog:v0.3.0
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 100m
+            memory: 30Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        args:
+        - webhook
+        - --secure-port
+        - "8443"
+        - --healthz-server-bind-port
+        - "8081"
+        - -v
+        - "10"
+        - --feature-gates
+        - OriginatingIdentity=true
+        - --feature-gates
+        - ServicePlanDefaults=false
+        ports:
+        - containerPort: 8443
+        volumeMounts:
+        - name: service-catalog-webhook-cert
+          mountPath: /var/run/service-catalog-webhook
+          readOnly: true
+        readinessProbe:
+          httpGet:
+            port: 8081
+            path: /healthz/ready
+            scheme: HTTP
+          failureThreshold: 1
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            port: 8081
+            path: /healthz
+            scheme: HTTP
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+      
+      volumes:
+      - name: service-catalog-webhook-cert
+        secret:
+          secretName: catalog-catalog-webhook-cert
+          items:
+          - key: tls.crt
+            path: tls.crt
+          - key: tls.key
+            path: tls.key
+---
+# Source: catalog/templates/webhook-register.yaml
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: catalog-catalog-webhook
+webhooks:
+- name: mutating.clusterservicebrokers.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/mutating-clusterservicebrokers"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["clusterservicebrokers"]
+- name: mutating.clusterserviceclasses.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/mutating-clusterserviceclasses"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["clusterserviceclasses"]
+- name: mutating.serviceclasses.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/mutating-serviceclasses"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["serviceclasses"]
+- name: mutating.clusterserviceplans.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/mutating-clusterserviceplans"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["clusterserviceplans"]
+- name: mutating.serviceplans.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/mutating-serviceplans"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["serviceplans"]
+- name: mutating.servicebindings.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/mutating-servicebindings"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["servicebindings"]
+- name: mutating.servicebrokers.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/mutating-servicebrokers"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["servicebrokers"]
+- name: mutating.serviceinstances.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/mutating-serviceinstances"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["serviceinstances"]
+---
+# Source: catalog/templates/webhook-register.yaml
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: catalog-catalog-validating-webhook
+webhooks:
+- name: validating.status.servicebindings.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-servicebindings/status"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["servicebindings/status"]
+- name: validating.status.servicbrokers.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-servicebrokers/status"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["servicebrokers/status"]
+- name: validating.status.clusterservicbrokers.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-clusterservicebrokers/status"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["clusterservicebrokers/status"]
+- name: validating.serviceinstances.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-serviceinstances"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["serviceinstances"]
+- name: validating.clusterservicebrokers.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-clusterservicebrokers"
+  failurePolicy: Fail
+  rules:
+    - operations: [ "CREATE", "UPDATE" ]
+      apiGroups: ["servicecatalog.k8s.io"]
+      apiVersions: ["v1beta1"]
+      resources: ["clusterservicebrokers"]
+- name: validating.servicebindings.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-servicebindings"
+  failurePolicy: Fail
+  rules:
+  - operations: [ "CREATE", "UPDATE" ]
+    apiGroups: ["servicecatalog.k8s.io"]
+    apiVersions: ["v1beta1"]
+    resources: ["servicebindings"]
+- name: validating.servicebrokers.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-servicebrokers"
+  failurePolicy: Fail
+  rules:
+    - operations: [ "CREATE", "UPDATE" ]
+      apiGroups: ["servicecatalog.k8s.io"]
+      apiVersions: ["v1beta1"]
+      resources: ["servicebrokers"]
+- name: validating.serviceclasses.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-serviceclasses"
+  failurePolicy: Fail
+  rules:
+    - operations: [ "CREATE", "UPDATE" ]
+      apiGroups: ["servicecatalog.k8s.io"]
+      apiVersions: ["v1beta1"]
+      resources: ["serviceclasses"]
+- name: validating.clusterserviceclasses.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-clusterserviceclasses"
+  failurePolicy: Fail
+  rules:
+    - operations: [ "CREATE", "UPDATE" ]
+      apiGroups: ["servicecatalog.k8s.io"]
+      apiVersions: ["v1beta1"]
+      resources: ["clusterserviceclasses"]
+- name: validating.serviceplans.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-serviceplans"
+  failurePolicy: Fail
+  rules:
+    - operations: [ "CREATE", "UPDATE" ]
+      apiGroups: ["servicecatalog.k8s.io"]
+      apiVersions: ["v1beta1"]
+      resources: ["serviceplans"]
+- name: validating.clusterserviceplans.servicecatalog.k8s.io
+  clientConfig:
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGakNDQWY2Z0F3SUJBZ0lRRTBDYmVRQVdFbThhaEpadCtKa1h4REFOQmdrcWhraUc5dzBCQVFzRkFEQWwKTVNNd0lRWURWUVFERXhwelpYSjJhV05sTFdOaGRHRnNiMmN0ZDJWaWFHOXZheTFqWVRBZUZ3MHlNREE0TWpVdwpPREUyTVRKYUZ3MHpNREE0TWpNd09ERTJNVEphTUNVeEl6QWhCZ05WQkFNVEduTmxjblpwWTJVdFkyRjBZV3h2Clp5MTNaV0pvYjI5ckxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQTJsMUsKVFdQa2o2bTcxV1RYWmpiUDlhWU9RdzNmN25jaUJjdk5mN05RZ0dseWc0VUZzanJtS2d1NVF1Ky9haFN1U21zZQpIWGc2WCtwMTNQajFpSFZURTM4dUc1K2VjQy9sRHRIcG5PRjFITVB1YTF3RUZIY3VBVHM1bGhHRjVPdGQ1ZERtCkRVZjlPTlNHYkk5bDcrTjRGdWFpQ0F6b2J5YTNNL1M0NHI5SUkra0VIRVFuZkpNV3ZacmRzQ1hLUTM1Mm9UOEcKZEVFUHFzM3pITzNxUU5pWHYvbFFza3hLN3VHL2JPamJjWDNqVjZka1NndklDM2tsVU04K1E1WFpmUU05SzY4Ygp0alNQc3FSdER2OUxxZmpTdlZMbzJBcWdGVkpJV0hKd1k2ZFBCWWxqQ3FKSlN6VVJ4bDJOS3FyZjFKMmhkdktNCldlZ3kwVmRkYk0rZ1lyZGJFUUlEQVFBQm8wSXdRREFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXcKRkFZSUt3WUJCUVVIQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTgpBUUVMQlFBRGdnRUJBTHVicy9TaFIzNkt1ZnQxQVgvUTRDTys5UHJyNWk4T0htK1NQbzd5akpMVWFTdGoxWFVZCnRHUWd1SmtZMlBuUTlrYWlFQ0ZNUTVBU1cvbU9iTHpOclMyL3VsK3MwRmZxL1NqK1MwTjc1L1NmOVUwRmpHa2UKY1BqZkxqT04zVEp3dE5hQ2taZm9ZNVVCRk84OXRPU21jc3d0NlFiSC95SU5vWmhYK3pTNk5zY0ppdkJoaGdPSwpXUEFiOVJVUE1YRHFsM2tEZHlWeFBTNkpSNUpmeUpSLzY3QzhGaVY5d282K2lvNUZyaUJXQTQxVmFwWTVCOU1WCm5HOGdONG41YlpSTXh2ZWtRU3FQeEI1WG1id2gwcWdnY0xnK2EyWmp1bVJqWFFIMzRaYkUwamxOWlR0REVNUncKdW53d1RvcFpNVmVLY0VVbWt6eU0vQTVRa0F2UzJObHBybnc9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    service:
+      name: catalog-catalog-webhook
+      namespace: "catalog"
+      path: "/validating-clusterserviceplans"
+  failurePolicy: Fail
+  rules:
+    - operations: [ "CREATE", "UPDATE" ]
+      apiGroups: ["servicecatalog.k8s.io"]
+      apiVersions: ["v1beta1"]
+      resources: ["clusterserviceplans"]
+---
+# Source: catalog/templates/migration-job.yaml
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: migration-job-account
+  namespace: catalog
+  labels:
+    migration-job: "true"
+    app: catalog-catalog-migration-job
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+---
+# Source: catalog/templates/pre-migration-job.yaml
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: pre-migration-job-account
+  namespace: catalog
+  labels:
+    migration-job: "true"
+    app: catalog-catalog-pre-migration-job
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+---
+# Source: catalog/templates/pre-migration-job.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: catalog-catalog-migration-storage
+  labels:
+    migration-job: "true"
+    app: catalog-catalog-pre-migration-job
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "0"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
+---
+# Source: catalog/templates/migration-job.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: migration-job-account
+  labels:
+    migration-job: "true"
+    app: catalog-catalog-migration-job
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs:     ["get", "update"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs:     ["list"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs:     ["get", "update"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs:     ["delete"]
+  - apiGroups: ["servicecatalog.k8s.io"]
+    resources:
+    - "clusterserviceclasses"
+    - "clusterserviceplans"
+    - "clusterservicebrokers"
+    - "serviceinstances"
+    - "servicebindings"
+    - "serviceclasses"
+    - "serviceplans"
+    - "servicebrokers"
+    verbs: ["list", "get", "create", "patch", "delete"]
+  - apiGroups: ["servicecatalog.k8s.io"]
+    resources:
+    - "clusterservicebrokers/status"
+    - "clusterserviceclasses/status"
+    - "clusterserviceplans/status"
+    - "serviceinstances/status"
+    - "serviceinstances"
+    - "servicebindings/status"
+    - "servicebrokers/status"
+    - "serviceclasses/status"
+    - "serviceplans/status"
+    verbs: ["update"]
+---
+# Source: catalog/templates/pre-migration-job.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: pre-migration-job-account
+  labels:
+    migration-job: "true"
+    app: catalog-catalog-pre-migration-job
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs:     ["get", "update"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs:     ["get", "update"]
+  - apiGroups: ["servicecatalog.k8s.io"]
+    resources:
+    - "clusterserviceclasses"
+    - "clusterserviceplans"
+    - "clusterservicebrokers"
+    - "serviceinstances"
+    - "servicebindings"
+    - "serviceclasses"
+    - "serviceplans"
+    - "servicebrokers"
+    verbs: ["get", "list", "delete", "update"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["validatingwebhookconfigurations"]
+    verbs: ["create", "delete"]
+---
+# Source: catalog/templates/migration-job.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: migration-job-account
+  labels:
+    migration-job: "true"
+    app: catalog-catalog-migration-job
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+subjects:
+  - kind: ServiceAccount
+    name: migration-job-account
+    namespace: catalog
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: migration-job-account
+---
+# Source: catalog/templates/pre-migration-job.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: pre-migration-job-account
+  labels:
+    migration-job: "true"
+    app: catalog-catalog-pre-migration-job
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+subjects:
+  - kind: ServiceAccount
+    name: pre-migration-job-account
+    namespace: catalog
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pre-migration-job-account
+---
+# Source: catalog/templates/cleaner-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: catalog-catalog-pre-delete-clean-job
+  labels:
+    app: catalog-catalog
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        cleaner-job: "true"
+        app: catalog-catalog-clean-job
+        chart: "catalog-0.3.0"
+        release: "catalog"
+        heritage: "Helm"
+    spec:
+      restartPolicy: Never
+      serviceAccountName: clean-job-account
+      imagePullSecrets:
+        []
+      containers:
+        - name: service-catalog
+          image: quay.io/kubernetes-service-catalog/service-catalog:v0.3.0
+          imagePullPolicy: Always
+          args:
+          - cleaner
+          - --cleaner-command
+          - "remove-crd"
+          - --service-catalog-namespace
+          - catalog
+          - --controller-manager-deployment
+          - catalog-catalog-controller-manager
+          - --webhook-configurations
+          - catalog-catalog-webhook catalog-catalog-validating-webhook
+---
+# Source: catalog/templates/migration-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: catalog-catalog-migration-job
+  labels:
+    app: catalog-catalog-migration-job
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        migration-job: "true"
+        app: catalog-catalog-migration-job
+        chart: "catalog-0.3.0"
+        release: "catalog"
+        heritage: "Helm"
+    spec:
+      restartPolicy: Never
+      serviceAccountName: migration-job-account
+      imagePullSecrets:
+        []
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: catalog-catalog-migration-storage
+      containers:
+        - name: job
+          image: quay.io/kubernetes-service-catalog/service-catalog:v0.3.0
+          imagePullPolicy: Always
+          args:
+          - migration
+          - --action
+          - restore
+          - --service-catalog-namespace
+          - catalog
+          - --controller-manager-deployment
+          - catalog-catalog-controller-manager
+          - --storage-path=data/
+          - --webhook-service-name
+          - catalog-catalog-webhook
+          - --webhook-service-port
+          - "443"
+          - --pvc-name
+          - catalog-catalog-migration-storage
+          volumeMounts:
+          - name: storage
+            mountPath: /data
+---
+# Source: catalog/templates/pre-migration-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: catalog-catalog-pre-migration-job
+  labels:
+    migration-job: "true"
+    app: catalog-catalog-pre-migration-job
+    chart: "catalog-0.3.0"
+    release: "catalog"
+    heritage: "Helm"
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        migration-job: "true"
+        app: catalog-catalog-pre-migration-job
+        chart: "catalog-0.3.0"
+        release: "catalog"
+        heritage: "Helm"
+    spec:
+      restartPolicy: Never
+      serviceAccountName: pre-migration-job-account
+      imagePullSecrets:
+        []
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: catalog-catalog-migration-storage
+      containers:
+        - name: job
+          image: quay.io/kubernetes-service-catalog/service-catalog:v0.3.0
+          imagePullPolicy: Always
+          args:
+          - migration
+          - --action
+          - backup
+          - --service-catalog-namespace
+          - catalog
+          - --controller-manager-deployment
+          - catalog-catalog-controller-manager
+          - --apiserver-deployment
+          - catalog-catalog-apiserver
+          - --storage-path=data/
+          volumeMounts:
+          - name: storage
+            mountPath: /data

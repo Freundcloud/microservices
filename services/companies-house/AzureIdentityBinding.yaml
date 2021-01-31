@@ -1,0 +1,7 @@
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: $CH_MI_NAME-binding
+spec:
+  azureIdentity: $CH_MI_NAME
+  selector: $CH_MI_NAME

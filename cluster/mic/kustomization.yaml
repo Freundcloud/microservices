@@ -1,0 +1,4 @@
+namespace: azure-aad-identity
+resources:
+  - 00-namespace.yaml
+  - 01-deployment.yaml
